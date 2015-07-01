@@ -1,3 +1,4 @@
+import sys
 from setuptools import setup
 
 if sys.argv[-1] == 'setup.py':
@@ -9,31 +10,26 @@ if sys.version_info[:2] < (2, 7):
           sys.version_info[:2])
     sys.exit(-1)
 
-packages = ["yummy",
-            "yummy.model",
-            "yummy.data",
-            "yummy.plotting"]
+packages = ["yummy"]
 
 if __name__ == "__main__":
 
     setup(
         name             = "yummy",
         version          = "0.0.1",
-        maintainer       = "jamal senouci"
+        maintainer       = "jamal senouci",
         maintainer_email = "jamal.senouci@outlook.co.uk",
         author           = 'jamal senouci',
         author_email     = "jamal.senouci@outlook.co.uk",
         description      = "Python package for marketing mix modelling",
         keywords         = ['Marketing', 'Econometrics', 'Modelling', 'Statistical'],
-        long_description = "Python package for marketing mix modelling",,
+        long_description = "Python package for marketing mix modelling",
         license          = 'BSD',
         platforms        = ['Windows'],
         url              = 'http://yummy.github.io/',
         download_url     = 'https://github.com/jamalsenouci/yummy/',
         classifiers      = "",
         packages         = packages,
-        data_files       = "",
-        package_data     = "",
         test_suite       = 'nose.collector',
         tests_require    = ['nose>=0.10.1'],
         zip_safe         = False
