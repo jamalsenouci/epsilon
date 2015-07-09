@@ -93,23 +93,22 @@ class Data(pd.DataFrame):
         else:
             return result
 
-    def decay(self, var, decays=None,inplace=True):
+    def decay(self, var, decays=None, inplace=True):
         """
         decays a variable
-        
-        
+
+
         Example
         -------
             ``ym.data.decay(["Mother's Day Media Spend","Suncare Media Spend"], [0.9,0.8], inplace=True)``
-        
+
         Attributes
         ----------
         var: list or string
         decays: list or float
         inplace: boolean            
-       
         """
-        
+
         subset = self[var]
         def _decay(df, dec):
             alpha = 1 - dec
@@ -117,7 +116,7 @@ class Data(pd.DataFrame):
             output = np.array(np.empty(N, dtype=float))
             decayed = df[0]
             output[0] = decayed
-            for i in range(1,N):
+            for i in range(1, N):
                 cur = df[i]
                 decayed = ((alpha * decayed) + cur)
                 output[i] = decayed
@@ -126,11 +125,11 @@ class Data(pd.DataFrame):
             decays = [decays]
         total = []
         for dec in decays:
-            decays = subset.apply(lambda x: _decay(x,dec))
+            decays = subset.apply(lambda x: _decay(x, dec))
             if isinstance(decays, pd.core.series.Series):
                 decays.name = str(decays.name)+' Dec'+str(dec)
             else:
-                decays.columns = decays.columns.map(lambda x: str(x)+' Dec'+str(dec))
+                decays.columns = decays.columns.map(lambda x: str(x) + ' Dec'+str(dec))
             total.append(decays)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
@@ -138,11 +137,11 @@ class Data(pd.DataFrame):
             self._update_inplace(result)
         else:
             return result
-        
-    
+
     def mult(self, var, newname=None, inplace=True):
-        if not len(var)==2:
-            raise ValueError("must pass of list of exactly two variable names to multiply")
+        if not len(var) == 2:
+            raise ValueError("must pass of list of exactly two \
+                variable names to multiply")
         multiplied = self[var[0]].mul(self[var[1]])
         if newname is None:
             name = var[0]+'*'+var[1]
