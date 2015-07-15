@@ -9,6 +9,7 @@ Yummy documentation
 Yummy is a package to simplify Market Mix Modelling in Python
 
 Yummy wraps up three main components data analysis, data modelling and data visualisation
+
 .. code-block:: python
    >>> import yummy as ym
    >>> yo = ym.read_csv('https://raw.githubusercontent.com/kept-io/r-datasets/master/datasets/quantreg/engel.csv')
