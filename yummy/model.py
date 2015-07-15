@@ -4,7 +4,7 @@ class Model(object):
         from pandas import DataFrame
         self.data = Data(data)
         self.variables_in = set()
-        _update_variables()
+        self._update_variables()
         self.depvar = None
         self.obs = self.data.index
         self.actual = None
@@ -52,7 +52,7 @@ class Model(object):
     
     def fit(self):
         Y = self.depvar
-        x = self.data[self.variables_in]
+        x = self.data[list(self.variables_in)]
         x = sm.add_constant(x)
         model = sm.OLS(Y,x)
         fit = model.fit()
@@ -130,5 +130,6 @@ class Model(object):
     
     def _update_variables(self):
         from pandas import DataFrame
-        self.variables_out = set(self.data.columns.tolist()) - self.variables_in
-        self.variables = pd.DataFrame(self.variables_out, columns=['Variable Name'])
+        allvars = self.data.columns.tolist()
+        self.variables_out = set(allvars) - self.variables_in
+        self.variables = DataFrame(allvars, columns=['Variable Name'])

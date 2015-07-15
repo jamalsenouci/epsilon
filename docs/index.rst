@@ -3,8 +3,32 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Yummy's documentation!
+Yummy documentation
 =================================
+
+Yummy is a package to simplify Market Mix Modelling in Python
+
+Yummy wraps up three main components data analysis, data modelling and data visualisation
+.. code-block:: python
+   >>> import yummy as ym
+   >>> yo = ym.read_csv('https://raw.githubusercontent.com/kept-io/r-datasets/master/datasets/quantreg/engel.csv')
+   >>> yo.data.corr()
+   >>> yo.model.dep = 'income'
+   >>> yo.model.add = 'foodexp'
+
+
+Tutorial
+--------
+For new users, and/or for an overview of Yummy’s basic functionality, please see the Overview and Tutorial. The rest of the documentation will assume you’re at least passingly familiar with the material contained within.
+
+Features
+--------
+
+License
+-------
+
+The project is licensed under the GPL license.
+
 
 Contents:
 

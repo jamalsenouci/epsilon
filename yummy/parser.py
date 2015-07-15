@@ -1,9 +1,11 @@
 from yummy.core import Yummy
 
-def read_csv(filepath, *args):
-    df = pd.read_csv(filepath, args)
+def read_csv(filepath):
+    from pandas import read_csv
+    df = read_csv(filepath)
     return Yummy(df)
 
-def read_excel(filepath, sheetname, *args):
+def read_excel(filepath, sheetname):
+    from pandas import read_excel
     df = pd.read_excel(filepath, sheetname, args)
     return Yummy(df)
