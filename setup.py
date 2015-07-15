@@ -10,6 +10,11 @@ if sys.version_info[:2] < (2, 7):
           sys.version_info[:2])
     sys.exit(-1)
 
+install_requires=[
+   'numpy',
+   'pandas',
+   'bokeh'
+]
 packages = ["yummy"]
 
 if __name__ == "__main__":
@@ -29,6 +34,7 @@ if __name__ == "__main__":
         url              = 'http://yummy.github.io/',
         download_url     = 'https://github.com/jamalsenouci/yummy/',
         classifiers      = "",
+        install_requires = install_requires,
         packages         = packages,
         test_suite       = 'nose.collector',
         tests_require    = ['nose>=0.10.1'],

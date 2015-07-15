@@ -15,11 +15,11 @@ class Yummy(object):
     --------
     yummy.load
     """
-    from yummy.model import Model
-    from yummy.data import Data
-    from yummy.plotting import Plotting
-    
     def __init__(self, data):
+        from yummy.model import Model
+        from yummy.data import Data
+        from yummy.plotting import Plotting
+        
         self.model = Model(data)
         self.data = self.model.data
         self.plotting = Plotting()

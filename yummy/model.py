@@ -1,10 +1,10 @@
 class Model(object):
-    
     def __init__(self, data):
+        from yummy.data import Data
+        from pandas import DataFrame
         self.data = Data(data)
         self.variables_in = set()
-        self.variables_out = set(self.data.columns.tolist())
-        self.variables = pd.DataFrame(self.data.columns.tolist(), columns=['Variable Name'])
+        _update_variables()
         self.depvar = None
         self.obs = self.data.index
         self.actual = None
@@ -13,6 +13,9 @@ class Model(object):
         self.fitdetail = None
         
     def add(self, variables):
+        #ensure latest variables are in the variable list 
+        _update_variables()
+        
         if isinstance(variables, str):
             variables = [variables]
         for var in variables:
@@ -25,6 +28,9 @@ class Model(object):
                 raise ValueError(var+" not in dataset")
     
     def rem(self, variables):
+        #ensure latest variables are in the variable list 
+        _update_variables()
+        
         if isinstance(variables, str):
             variables = [variables]
         for var in variables:
@@ -60,10 +66,11 @@ class Model(object):
         pass
     
     def avm(self):
+        from pandas import Series
         predict = self.fitdetail.predict()
         obs = self.obs
         obs = obs.map(lambda x: x.strftime('%d-%b-%y')).tolist()
-        model = pd.Series(predict, index=obs, name='Model')
+        model = Series(predict, index=obs, name='Model')
         actual = self.depvar
         plot = bk.Figure(plot_width=900, plot_height=500, x_range=obs)
         plot.xaxis.major_label_orientation = np.pi/3
@@ -73,13 +80,14 @@ class Model(object):
         return bk.show(plot)
     
     def con(self):
+        from pandas import DataFrame
         obs = self.obs
         obs = obs.map(lambda x: x.strftime('%d-%b-%y')).tolist()
         actual = self.depvar
         exog = self.fitdetail.model.exog
         coeffs = self.fitdetail.params.values
         contribs = (exog*coeffs)
-        contribs = pd.DataFrame(contribs, index=obs, columns=self.fitdetail.params.keys())
+        contribs = DataFrame(contribs, index=obs, columns=self.fitdetail.params.keys())
         plot = bk.figure(plot_width=900, plot_height=500, x_range=obs, x_axis_type=None)
         plot.left[0].formatter.use_scientific = False 
         plot.grid.grid_line_color = None
@@ -120,13 +128,7 @@ class Model(object):
         plot.line(x=obs, y=actual, line_dash=[4, 4], color='#000000', legend='Sales')
         return bk.show(plot)
     
-    def _update_model_series(self):
-        predict = fit.predict()
-        self.model = pd.Series(predict, index=obs, name='Model')
-        self.actual = df['Value Sales']
-        self.res = fit.resid
-        self.avm = pd.concat([actual,model], axis=1)
-    
     def _update_variables(self):
+        from pandas import DataFrame
         self.variables_out = set(self.data.columns.tolist()) - self.variables_in
         self.variables = pd.DataFrame(self.variables_out, columns=['Variable Name'])
