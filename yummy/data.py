@@ -9,9 +9,20 @@ class Data(pd.DataFrame):
 
     Examples
     --------
-    >>> d = {'col1': ts1, 'col2': ts2}
-    >>> df = DataFrame(data=d, index=index)
-    >>> Data(df)
+    >>> from pandas import DataFrame
+    >>> import numpy as np
+    >>> df = DataFrame({'a': [True, False] * 3,
+    ...                 'b': [1.0, 2.0] * 3})
+    >>> data = Data(df)
+    >>> data
+           a  b
+    0   True  1
+    1  False  2
+    2   True  1
+    3  False  2
+    4   True  1
+    5  False  2
+    
 
     See also
     --------
@@ -22,6 +33,11 @@ class Data(pd.DataFrame):
         super(Data, self).__init__(data, index, columns, dtype, copy)
     
     def pow(self, var, power, inplace=True):
+        """
+        Create new variable that is a specified variable raised to a given power
+        
+        Also works on multiple variables.
+        """
         subset = self[var]
         powered = subset.pow(power)
         if isinstance(powered, pd.core.series.Series):
@@ -35,6 +51,11 @@ class Data(pd.DataFrame):
             return result
         
     def lag(self, var, lag, val, inplace=True):
+        """
+        Create a new variable that is a lag or lead of a specified variable.
+        
+        Also works on multiple variables.
+        """
         subset = self[var]
         if lag == 0:
             raise ValueError("A lag of zero is pointless!")
@@ -54,6 +75,12 @@ class Data(pd.DataFrame):
             return result
 
     def atan(self, var, alphas,inplace=True):
+        """
+        Create a new variable that is an atan transformation of a specified variable.
+        Used to model diminishing returns, creates a concave transformation
+        
+        Also works on multiple variables.
+        """
         subset = self[var]
         std = subset.div(subset.max())
         if not isinstance(alphas, list):
@@ -74,6 +101,12 @@ class Data(pd.DataFrame):
             return result
     
     def atansq(self, var, alphas, inplace=True):
+        """
+        Create a new variable that is a squared atan transformation of a specified variable.
+        Used to model either diminishing and increasing returns, creates an s-shaped transformation
+        
+        Also works on multiple variables.
+        """
         subset = self[var]
         std = subset.div(subset.max())
         if not isinstance(alphas, list):
@@ -95,12 +128,14 @@ class Data(pd.DataFrame):
 
     def decay(self, var, decays=None, inplace=True):
         """
+        Create a new variable that decays away over time
+        Used to model advertising carryover into the next period.
+        Also works on multiple variables.
         decays a variable
-
 
         Example
         -------
-            ``ym.data.decay(["Mother's Day Media Spend","Suncare Media Spend"], [0.9,0.8], inplace=True)``
+            ym.data.decay(["Mother's Day Media Spend","Suncare Media Spend"], [0.9,0.8], inplace=True)``
 
         Attributes
         ----------
@@ -125,12 +160,12 @@ class Data(pd.DataFrame):
             decays = [decays]
         total = []
         for dec in decays:
-            decays = subset.apply(lambda x: _decay(x, dec))
-            if isinstance(decays, pd.core.series.Series):
-                decays.name = str(decays.name)+' Dec'+str(dec)
+            applied = subset.apply(lambda x: _decay(x, dec))
+            if isinstance(applied, pd.core.series.Series):
+                applied.name = str(applied.name) + ' Dec'+str(dec)
             else:
-                decays.columns = decays.columns.map(lambda x: str(x) + ' Dec'+str(dec))
-            total.append(decays)
+                applied.columns = applied.columns + ' Dec'+str(dec)
+            total.append(applied)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
         if inplace:
@@ -139,6 +174,13 @@ class Data(pd.DataFrame):
             return result
 
     def mult(self, var, newname=None, inplace=True):
+        """
+        Create a new variable that is a multiplicative combination of two variables.
+        Used to model interaction between two variables. e.g. Promotion and Media
+        
+        Also works on multiple variables.
+        decays a variable
+        """
         if not len(var) == 2:
             raise ValueError("must pass of list of exactly two \
                 variable names to multiply")

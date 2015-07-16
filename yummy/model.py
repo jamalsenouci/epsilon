@@ -1,4 +1,8 @@
 class Model(object):
+    """ The modelling component of the yummy package keeps track of the 
+    endogenous and exogenous variables that are entered
+    
+    """
     def __init__(self, data):
         from yummy.data import Data
         from pandas import DataFrame
@@ -10,6 +14,7 @@ class Model(object):
         self.actual = None
         self.model = None
         self.res = None
+        self.period = None
         self.fitdetail = None
         
     def add(self, variables):
@@ -59,7 +64,7 @@ class Model(object):
         self.fitdetail = fit
         return fit.summary()
 
-    def period(self, period):
+    def sample(self, period):
         pass
     
     def fix(self, variables, values):

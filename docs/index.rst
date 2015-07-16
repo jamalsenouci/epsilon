@@ -25,6 +25,9 @@ For new users, and/or for an overview of Yummy’s basic functionality, please s
 Features
 --------
 
+Transformations - Lag, Decay, Power, Atan
+Linear Regression Modelling - OLS, GLS
+
 License
 -------
 

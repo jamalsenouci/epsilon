@@ -22,7 +22,6 @@ class Yummy(object):
     5  False  2
     
     
-    
     See also
     --------
     yummy.load
