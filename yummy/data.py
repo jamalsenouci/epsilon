@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 class Data(pd.DataFrame):
-    """ Wrapper around a Pandas DataFrame providing convenience methods specific to modelling
+    """ Wrapper around a Pandas DataFrame providing data transformation methods specific to marketing modelling
     
     Parameters
     ----------

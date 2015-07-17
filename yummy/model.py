@@ -1,6 +1,7 @@
 class Model(object):
     """ The modelling component of the yummy package keeps track of the 
-    endogenous and exogenous variables that are entered
+    endogenous and exogenous variables that are entered. fits the model and 
+    captures the stats 
     
     """
     def __init__(self, data):
@@ -18,8 +19,9 @@ class Model(object):
         self.fitdetail = None
         
     def add(self, variables):
+        """add variables to the model, variables will be placed into the variables_in method"""
         #ensure latest variables are in the variable list 
-        _update_variables()
+        self._update_variables()
         
         if isinstance(variables, str):
             variables = [variables]
@@ -33,6 +35,7 @@ class Model(object):
                 raise ValueError(var+" not in dataset")
     
     def rem(self, variables):
+        """remove variables from the model, variables will be placed back into the variables_out method"""
         #ensure latest variables are in the variable list 
         _update_variables()
         
@@ -46,37 +49,55 @@ class Model(object):
                 print(var + " not in model")
     
     def dep(self, name):
+        """set the dependent variable, can be a single name for a simple linear 
+        regression. Panel regression not yet implemented.
+        """
         if name in self.variables_in:
             self.variables_in.remove(name)
-            print('Dependent Variable removed from variables in to prevent the model from being suspiciously too good')
+            print('Dependent Variable removed from variables in to prevent the \
+            model from being suspiciously too good')
         if name in self.variables_out:
             self.variables_out.remove(name)
             self.depvar = self.data[name]
         else:
             print(name + " not in data")
     
-    def fit(self):
+    def ols(self):
+        """fits the specified endogenous and exogenous variables with an OLS
+        estimation"""
+        import statsmodels.api as sm
+        modeltype = sm.OLS
+        return self._fit(modeltype)
+        
+    def _fit(self, modeltype):
+        """generic statsmodels fit function that takes any statsmodels 
+        estimation method"""
+        import statsmodels.api as sm
         Y = self.depvar
         x = self.data[list(self.variables_in)]
         x = sm.add_constant(x)
-        model = sm.OLS(Y,x)
-        fit = model.fit()
+        modelspec = modeltype(Y,x)
+        fit = modelspec.fit()
         self.fitdetail = fit
         return fit.summary()
 
     def sample(self, period):
+        """restrict the modelling period to a sample of the total dataset"""
         pass
     
     def fix(self, variables, values):
         pass
     
     def avm(self):
+        """produce a line chart of actual data vs fitted data"""
         from pandas import Series
+        
         predict = self.fitdetail.predict()
         obs = self.obs
         obs = obs.map(lambda x: x.strftime('%d-%b-%y')).tolist()
         model = Series(predict, index=obs, name='Model')
         actual = self.depvar
+        
         plot = bk.Figure(plot_width=900, plot_height=500, x_range=obs)
         plot.xaxis.major_label_orientation = np.pi/3
         plot.left[0].formatter.use_scientific = False 
@@ -85,6 +106,8 @@ class Model(object):
         return bk.show(plot)
     
     def con(self):
+        """Produce a contribution chart. A stacked chart of all the components
+        that make up the dependent variable"""
         from pandas import DataFrame
         obs = self.obs
         obs = obs.map(lambda x: x.strftime('%d-%b-%y')).tolist()
@@ -92,8 +115,10 @@ class Model(object):
         exog = self.fitdetail.model.exog
         coeffs = self.fitdetail.params.values
         contribs = (exog*coeffs)
-        contribs = DataFrame(contribs, index=obs, columns=self.fitdetail.params.keys())
-        plot = bk.figure(plot_width=900, plot_height=500, x_range=obs, x_axis_type=None)
+        contribs = DataFrame(contribs, index=obs, columns=self.fitdetail
+                            .params.keys())
+        plot = bk.figure(plot_width=900, plot_height=500, x_range=obs, 
+                        x_axis_type=None)
         plot.left[0].formatter.use_scientific = False 
         plot.grid.grid_line_color = None
         plot.axis.major_tick_line_color = None
@@ -124,16 +149,21 @@ class Model(object):
             name = contrib
             contrib = contribs[contrib]
             if contrib.max() > 0:
-                plot.rect(x=obs, y=pos_sum+contrib/2, width=1, height=contrib, color=colors[i], alpha=0.6, legend=name)
+                plot.rect(x=obs, y=pos_sum+contrib/2, width=1, height=contrib, 
+                          color=colors[i], alpha=0.6, legend=name)
                 pos_sum += contrib
             else:
-                plot.rect(x=obs, y=neg_sum+contrib/2, width=1, height=contrib, color=colors[i], alpha=0.6)
+                plot.rect(x=obs, y=neg_sum+contrib/2, width=1, height=contrib, 
+                          color=colors[i], alpha=0.6)
                 neg_sum += contrib
                 actual -= contrib
-        plot.line(x=obs, y=actual, line_dash=[4, 4], color='#000000', legend='Sales')
+        plot.line(x=obs, y=actual, line_dash=[4, 4], color='#000000', 
+                  legend='Sales')
         return bk.show(plot)
     
     def _update_variables(self):
+        """internal function that updates the variables_out with new variables
+        that have been added to the dataset"""
         from pandas import DataFrame
         allvars = self.data.columns.tolist()
         self.variables_out = set(allvars) - self.variables_in

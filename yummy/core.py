@@ -33,4 +33,4 @@ class Yummy(object):
         self.model = Model(data)
         self.data = self.model.data
         self.plotting = Plotting()
-        self.model.plot = self.plotting.plot
+        #self.model.plot = self.plotting.plot
