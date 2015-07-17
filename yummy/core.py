@@ -28,9 +28,7 @@ class Yummy(object):
     """
     def __init__(self, data):
         from yummy.model import Model
-        from yummy.plotting import Plotting
         
         self.model = Model(data)
         self.data = self.model.data
-        self.plotting = Plotting()
         #self.model.plot = self.plotting.plot

@@ -67,7 +67,7 @@ class Model(object):
         estimation"""
         import statsmodels.api as sm
         modeltype = sm.OLS
-        return self._fit(modeltype)
+        self._fit(modeltype)
         
     def _fit(self, modeltype):
         """generic statsmodels fit function that takes any statsmodels 
@@ -83,6 +83,7 @@ class Model(object):
 
     def sample(self, period):
         """restrict the modelling period to a sample of the total dataset"""
+        #set sample obs
         pass
     
     def fix(self, variables, values):
@@ -90,20 +91,16 @@ class Model(object):
     
     def avm(self):
         """produce a line chart of actual data vs fitted data"""
+        import yummy.plotting as plt
         from pandas import Series
+        from pandas import concat
         
         predict = self.fitdetail.predict()
         obs = self.obs
-        obs = obs.map(lambda x: x.strftime('%d-%b-%y')).tolist()
         model = Series(predict, index=obs, name='Model')
         actual = self.depvar
-        
-        plot = bk.Figure(plot_width=900, plot_height=500, x_range=obs)
-        plot.xaxis.major_label_orientation = np.pi/3
-        plot.left[0].formatter.use_scientific = False 
-        plot.line(obs,model, legend='Model')
-        plot.line(obs,actual, legend='Actual')
-        return bk.show(plot)
+        combined = concat([actual, model], axis=1)
+        plt.line(df = combined)
     
     def con(self):
         """Produce a contribution chart. A stacked chart of all the components
