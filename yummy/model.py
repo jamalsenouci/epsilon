@@ -12,10 +12,7 @@ class Model(object):
         self._update_variables()
         self.depvar = None
         self.obs = self.data.index
-        self.actual = None
-        self.model = None
-        self.res = None
-        self.period = None
+        self.sample = self.obs
         self.fitdetail = None
         
     def add(self, variables):
@@ -87,7 +84,12 @@ class Model(object):
         pass
     
     def fix(self, variables, values):
+        """fix a variable coefficient to a specified number based on other information"""
         pass
+    
+    def group(self):
+        """place variables_in into contribution groups"""
+        #import pandas-qt
     
     def avm(self):
         """produce a line chart of actual data vs fitted data"""
@@ -95,69 +97,30 @@ class Model(object):
         from pandas import Series
         from pandas import concat
         
-        predict = self.fitdetail.predict()
         obs = self.obs
-        model = Series(predict, index=obs, name='Model')
         actual = self.depvar
+        predict = self.fitdetail.predict()
+        model = Series(predict, index=obs, name='Model')
+        
         combined = concat([actual, model], axis=1)
-        plt.line(df = combined)
+        plt.line(combined)
     
     def con(self):
         """Produce a contribution chart. A stacked chart of all the components
         that make up the dependent variable"""
         from pandas import DataFrame
+        import yummy.plotting as plt
+        
         obs = self.obs
-        obs = obs.map(lambda x: x.strftime('%d-%b-%y')).tolist()
         actual = self.depvar
         exog = self.fitdetail.model.exog
         coeffs = self.fitdetail.params.values
         contribs = (exog*coeffs)
+        
         contribs = DataFrame(contribs, index=obs, columns=self.fitdetail
                             .params.keys())
-        plot = bk.figure(plot_width=900, plot_height=500, x_range=obs, 
-                        x_axis_type=None)
-        plot.left[0].formatter.use_scientific = False 
-        plot.grid.grid_line_color = None
-        plot.axis.major_tick_line_color = None
-        plot.xaxis.major_label_orientation = np.pi/3
-        #ticker = bokeh.models.formatters.DatetimeTickFormatter()
-        #xaxis = bokeh.models.DatetimeAxis(num_labels=10)
-        #plot.add_layout(xaxis, 'below')
-        colors = ['#1f77b4',
-                  '#ff7f0e',
-                  '#2ca02c',
-                  '#d62728',
-                  '#9467bd',
-                  '#8c564b',
-                  '#e377c2',
-                  '#7f7f7f',
-                  '#bcbd22',
-                  '#17becf',
-                  '#e377c2',
-                  '#7f7f7f',
-                  '#bcbd22',
-                  '#aec7e8',
-                  '#ffbb78',
-                  '#98df8a',
-                  '#ff9896']
-        pos_sum = 0
-        neg_sum = 0
-        for i, contrib in enumerate(contribs):
-            name = contrib
-            contrib = contribs[contrib]
-            if contrib.max() > 0:
-                plot.rect(x=obs, y=pos_sum+contrib/2, width=1, height=contrib, 
-                          color=colors[i], alpha=0.6, legend=name)
-                pos_sum += contrib
-            else:
-                plot.rect(x=obs, y=neg_sum+contrib/2, width=1, height=contrib, 
-                          color=colors[i], alpha=0.6)
-                neg_sum += contrib
-                actual -= contrib
-        plot.line(x=obs, y=actual, line_dash=[4, 4], color='#000000', 
-                  legend='Sales')
-        return bk.show(plot)
-    
+        plt.stackedBarAndLine(actual, contribs)
+
     def _update_variables(self):
         """internal function that updates the variables_out with new variables
         that have been added to the dataset"""
