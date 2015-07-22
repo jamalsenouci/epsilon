@@ -57,6 +57,7 @@ def line(df, namelist=None):
     bk.show(plt)
 
 def stackedBarAndLine(line,stackedbar, namelist=None):
+    """TODO: Datetime index"""
     from pandas.tseries.index import DatetimeIndex
     import numpy as np
     

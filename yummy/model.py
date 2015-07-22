@@ -6,7 +6,6 @@ class Model(object):
     """
     def __init__(self, data):
         from yummy.data import Data
-        from pandas import DataFrame
         self.data = Data(data)
         self.variables_in = set()
         self._update_variables()
@@ -16,7 +15,8 @@ class Model(object):
         self.fitdetail = None
         
     def add(self, variables):
-        """add variables to the model, variables will be placed into the variables_in method"""
+        """add variables to the model, variables will be placed into the 
+        variables_in method"""
         #ensure latest variables are in the variable list 
         self._update_variables()
         
@@ -32,9 +32,10 @@ class Model(object):
                 raise ValueError(var+" not in dataset")
     
     def rem(self, variables):
-        """remove variables from the model, variables will be placed back into the variables_out method"""
+        """remove variables from the model, variables will be placed back into 
+        the variables_out method"""
         #ensure latest variables are in the variable list 
-        _update_variables()
+        self._update_variables()
         
         if isinstance(variables, str):
             variables = [variables]
@@ -59,20 +60,21 @@ class Model(object):
         else:
             print(name + " not in data")
     
-    def ols(self):
+    def ols(self, constant=True):
         """fits the specified endogenous and exogenous variables with an OLS
         estimation"""
         import statsmodels.api as sm
         modeltype = sm.OLS
-        return self._fit(modeltype)
+        return self._fit(modeltype, constant)
         
-    def _fit(self, modeltype):
+    def _fit(self, modeltype, constant):
         """generic statsmodels fit function that takes any statsmodels 
         estimation method"""
         import statsmodels.api as sm
         Y = self.depvar
         x = self.data[list(self.variables_in)]
-        x = sm.add_constant(x)
+        if constant == True:
+            x = sm.add_constant(x)
         modelspec = modeltype(Y,x)
         fit = modelspec.fit()
         self.fitdetail = fit
@@ -84,7 +86,19 @@ class Model(object):
         pass
     
     def fix(self, variables, values):
-        """fix a variable coefficient to a specified number based on other information"""
+        """fix a variable coefficient to a specified number based on other 
+        information"""
+        pass
+    
+    def ttest(self, subset="all"):
+        """calculate statistics for variables outside of the model if they were 
+        entered"""
+        if subset == "all":
+            self._update_variables()
+            subset = self.variables_out
+        pass
+    
+    def forecast(self, end_date):
         pass
     
     def group(self):
