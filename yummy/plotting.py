@@ -57,6 +57,7 @@ def line(df, namelist=None):
     bk.show(plt)
 
 def stackedBarAndLine(line,stackedbar, namelist=None):
+    from pandas.tseries.index import DatetimeIndex
     import numpy as np
     
     obs = line.index
@@ -83,7 +84,7 @@ def stackedBarAndLine(line,stackedbar, namelist=None):
             pos_sum += contrib
         else:
             plot.rect(x=obs, y=neg_sum+contrib/2, width=1, height=contrib, 
-                      color=_colors[i], alpha=0.6)
+                      color=_colors[i], alpha=0.6, legend=name)
             neg_sum += contrib
             line -= contrib
     plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000', 

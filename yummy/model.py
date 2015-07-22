@@ -64,7 +64,7 @@ class Model(object):
         estimation"""
         import statsmodels.api as sm
         modeltype = sm.OLS
-        self._fit(modeltype)
+        return self._fit(modeltype)
         
     def _fit(self, modeltype):
         """generic statsmodels fit function that takes any statsmodels 
