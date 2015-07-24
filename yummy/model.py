@@ -6,12 +6,14 @@ class Model(object):
     """
     def __init__(self, data):
         from yummy.data import Data
+        import numpy as np
+        
         self.data = Data(data)
         self.variables_in = set()
         self._update_variables()
         self.depvar = None
         self.obs = self.data.index
-        self.sample = pd.Series(np.ones(len(self.data.index),index=self.model.index)
+        self.sample = np.ones(len(self.data.index))
         self.fitdetail = None
         
     def add(self, variables):
