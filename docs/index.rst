@@ -8,7 +8,9 @@ Yummy documentation
 
 Yummy is a package to simplify Market Mix Modelling in Python
 
-Yummy wraps up three main components data analysis, data modelling and data visualisation
+Yummy wraps up three main components data analysis, data modelling and data visualisation.
+
+It is intended for use in the IPython notebook
 
 .. code-block:: python
    >>> import yummy as ym
@@ -26,6 +28,7 @@ Features
 --------
 
 Transformations - Lag, Decay, Power, Atan
+
 Linear Regression Modelling - OLS, GLS
 
 

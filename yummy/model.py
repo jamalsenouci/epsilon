@@ -11,7 +11,7 @@ class Model(object):
         self._update_variables()
         self.depvar = None
         self.obs = self.data.index
-        self.sample = self.obs
+        self.sample = pd.Series(np.ones(len(self.data.index),index=self.model.index)
         self.fitdetail = None
         
     def add(self, variables):
@@ -31,11 +31,14 @@ class Model(object):
             else:
                 raise ValueError(var+" not in dataset")
     
-    def rem(self, variables):
+    def rem(self, variables=None):
         """remove variables from the model, variables will be placed back into 
         the variables_out method"""
         #ensure latest variables are in the variable list 
         self._update_variables()
+        
+        if variables == None:
+            variables = list(self.variables_in)
         
         if isinstance(variables, str):
             variables = [variables]
@@ -71,8 +74,8 @@ class Model(object):
         """generic statsmodels fit function that takes any statsmodels 
         estimation method"""
         import statsmodels.api as sm
-        Y = self.depvar
-        x = self.data[list(self.variables_in)]
+        Y = self.depvar * self.sample
+        x = self.data[list(self.variables_in)] * self.sample
         if constant == True:
             x = sm.add_constant(x)
         modelspec = modeltype(Y,x)
@@ -82,7 +85,7 @@ class Model(object):
 
     def sample(self, period):
         """restrict the modelling period to a sample of the total dataset"""
-        #set sample obs
+        #set sample obs handsontable widget
         pass
     
     def fix(self, variables, values):
@@ -96,6 +99,7 @@ class Model(object):
         if subset == "all":
             self._update_variables()
             subset = self.variables_out
+        
         pass
     
     def forecast(self, end_date):
@@ -139,6 +143,18 @@ class Model(object):
         """internal function that updates the variables_out with new variables
         that have been added to the dataset"""
         from pandas import DataFrame
+        from pandas import Series
+        from collections import Counter
         allvars = self.data.columns.tolist()
+        
+        #check duplicate names
+        count = Counter(allvars)
+        count = Series(count)
+        duplicates = count[count > 1].index.tolist()
+        print("the following variables have duplicate names: " + str(duplicates) + 
+        " adding variables to the model requires distinct variable names")
+        
+        
+        #update variables_in and variables_out with new vars
         self.variables_out = set(allvars) - self.variables_in
         self.variables = DataFrame(allvars, columns=['Variable Name'])
