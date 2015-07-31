@@ -31,14 +31,21 @@ class Model(object):
             else:
                 raise ValueError(var+" not in dataset")
     
-    def rem(self, variables):
+    def rem(self, variables=None):
         """remove variables from the model, variables will be placed back into 
         the variables_out method"""
         #ensure latest variables are in the variable list 
         self._update_variables()
+
+        if self.variables_in == set():
+            return
+
+        if variables == None:
+            variables = list(self.variables_in)
         
         if isinstance(variables, str):
             variables = [variables]
+
         for var in variables:
             if var in self.variables_in:
                 self.variables_in.remove(var)
@@ -64,18 +71,27 @@ class Model(object):
         """fits the specified endogenous and exogenous variables with an OLS
         estimation"""
         import statsmodels.api as sm
-        modeltype = sm.OLS
-        return self._fit(modeltype, constant)
-        
-    def _fit(self, modeltype, constant):
-        """generic statsmodels fit function that takes any statsmodels 
-        estimation method"""
-        import statsmodels.api as sm
         Y = self.depvar
         x = self.data[list(self.variables_in)]
         if constant == True:
             x = sm.add_constant(x)
-        modelspec = modeltype(Y,x)
+        modelspec = sm.OLS(Y,x)
+        return self._fit(modelspec)
+
+    def var(self, lag):
+        """needs to generalise fit function"""
+        import statsmodels.api as sm
+        variables = list(self.variables_in)
+        data = self.data(variables)
+        modelspec = sm.VAR(data)
+        params = lag
+        return self._fit(modelspec, params)
+
+        
+    def _fit(self, modelspec):
+        """generic statsmodels fit function that takes any statsmodels 
+        estimation method"""
+        import statsmodels.api as sm
         fit = modelspec.fit()
         self.fitdetail = fit
         return fit.summary()
@@ -93,11 +109,22 @@ class Model(object):
     def ttest(self, subset="all"):
         """calculate statistics for variables outside of the model if they were 
         entered"""
+        from pandas import DataFrame
+
         if subset == "all":
             self._update_variables()
             subset = self.variables_out
-        pass
-    
+        params = []
+        for var in subset:
+            self.add(var)
+            self.ols()
+            params.append({"Variable Name":var, "coefficient":self.fitdetail.params[var], "t-stat":self.fitdetail.tvalues[var], "PValue":self.fitdetail.pvalues[var], "Adjusted Rsquared":self.fitdetail.rsquared_adj})
+            self.rem(var)
+        self.ols()
+        params = DataFrame(params)
+        params = params.set_index("Variable Name")
+        return params
+
     def forecast(self, end_date):
         pass
     
@@ -140,5 +167,5 @@ class Model(object):
         that have been added to the dataset"""
         from pandas import DataFrame
         allvars = self.data.columns.tolist()
-        self.variables_out = set(allvars) - self.variables_in
+        self.variables_out = set(allvars) - self.variables_in - self.depvar.name
         self.variables = DataFrame(allvars, columns=['Variable Name'])
