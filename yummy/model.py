@@ -77,7 +77,7 @@ class Model(object):
         if constant == True:
             x = sm.add_constant(x)
         modelspec = sm.OLS(Y,x)
-        return self._fit(modelspec)
+        return self._fit(modelspec,constant)
 
     def var(self, lag):
         """needs to generalise fit function"""
@@ -172,8 +172,6 @@ class Model(object):
         """internal function that updates the variables_out with new variables
         that have been added to the dataset"""
         from pandas import DataFrame
-        from pandas import Series
-        from collections import Counter
         allvars = self.data.columns.tolist
         self.variables_out = set(allvars) - self.variables_in - self.depvar.name
         self.variables = DataFrame(allvars, columns=['Variable Name'])
