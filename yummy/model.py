@@ -10,8 +10,9 @@ class Model(object):
         
         self.data = Data(data)
         self.variables_in = set()
-        self._update_variables()
+        self.variables_out = None
         self.depvar = None
+        self._update_variables()
         self.obs = self.data.index
         self.sample = np.ones(len(self.data.index))
         self.fitdetail = None
@@ -77,7 +78,7 @@ class Model(object):
         if constant == True:
             x = sm.add_constant(x)
         modelspec = sm.OLS(Y,x)
-        return self._fit(modelspec)
+        return self._fit(modelspec, constant)
 
     def var(self, lag):
         """needs to generalise fit function"""
@@ -94,10 +95,10 @@ class Model(object):
         estimation method"""
         import statsmodels.api as sm
         Y = self.depvar * self.sample
-        x = self.data[list(self.variables_in)] * self.sample
+        x = self.data[list(self.variables_in)].mul(self.sample, axis=0)
         if constant == True:
             x = sm.add_constant(x)
-        modelspec = modeltype(Y,x)
+        modelspec = modeltype
         fit = modelspec.fit()
         self.fitdetail = fit
         return fit.summary()
@@ -174,6 +175,9 @@ class Model(object):
         from pandas import DataFrame
         from pandas import Series
         from collections import Counter
-        allvars = self.data.columns.tolist
-        self.variables_out = set(allvars) - self.variables_in - self.depvar.name
+        allvars = self.data.columns.tolist()
+        if self.depvar is not None:
+        	self.variables_out = set(allvars) - self.variables_in - set(self.depvar.name)
+        else:
+        	self.variables_out = set(allvars) - self.variables_in
         self.variables = DataFrame(allvars, columns=['Variable Name'])
