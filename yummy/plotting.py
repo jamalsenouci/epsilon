@@ -60,7 +60,8 @@ def line(df, namelist=None):
         tooltips=[
             ("obs", "$index"),
             ("Date", "@date"),
-            ("Value", "@y")
+            ("Value", "@y"),
+            ("Variable", "@variable")
         ]
     )
 
@@ -71,14 +72,14 @@ def line(df, namelist=None):
     obs = df.index.to_datetime()
     #obs = np.array(df.index, dtype=np.datetime64)
     if isinstance(df, Series):
-      source = ColumnDataSource({'x': obs, 'y': df.values , 'date': [x.strftime('%d %b %Y') for x in obs]})
-      plot.circle('x', 'y', source=source, size=15, color='darkgrey', alpha=0.1, legend=df.name)
+      source = ColumnDataSource({'x': obs, 'y': df.values , 'date': [x.strftime('%d %b %Y') for x in obs],'variable':[df.name for x in obs]})
+      plot.circle('x', 'y', source=source, size=4, color='darkgrey', alpha=0.1, legend=df.name)
       plot.line(obs, df.values, color='navy', legend=df.name)
     else:
-        for col in df:
-          source = ColumnDataSource({'x': obs, 'y': df[col].values , 'date': df.index.format()})
-          plot.circle('x', 'y', source=source, size=4, color='darkgrey', alpha=0.2, legend=col)
-          plot.line(obs, df[col].values, color='navy', legend=col)
+        for i, col in enumerate(df):
+          source = ColumnDataSource({'x': obs, 'y': df[col].values , 'date': df.index.format(), 'variable':[df[col].name for x in obs]})
+          plot.circle('x', 'y', source=source, size=4, color=_colors[i], alpha=0.2, legend=col)
+          plot.line(obs, df[col].values, color=_colors[i], legend=col)
     bk.show(plot)
 
 def stackedBarAndLine(line,stackedbar, namelist=None):

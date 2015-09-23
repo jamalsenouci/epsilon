@@ -200,6 +200,7 @@ class Model(object):
         import yummy.plotting as plt
         obs = self.obs()
         resid = self.fitdetail.resid
+        resid.name = "Residuals"
         if percent == True:
             resid = self.fitdetail.resid / self.fitdetail.model.endog
         plt.line(resid)
