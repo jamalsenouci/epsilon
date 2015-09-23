@@ -60,7 +60,7 @@ def line(df, namelist=None):
         tooltips=[
             ("obs", "$index"),
             ("Date", "@date"),
-            ("y", "$y")
+            ("Value", "@y")
         ]
     )
 
@@ -72,7 +72,7 @@ def line(df, namelist=None):
     #obs = np.array(df.index, dtype=np.datetime64)
     if isinstance(df, Series):
       source = ColumnDataSource({'x': obs, 'y': df.values , 'date': [x.strftime('%d %b %Y') for x in obs]})
-      plot.circle('x', 'y', source=source, size=4, color='darkgrey', alpha=0.2, legend=df.name)
+      plot.circle('x', 'y', source=source, size=15, color='darkgrey', alpha=0.1, legend=df.name)
       plot.line(obs, df.values, color='navy', legend=df.name)
     else:
         for col in df:
@@ -88,8 +88,7 @@ def stackedBarAndLine(line,stackedbar, namelist=None):
     import numpy as np
     from bokeh.models import HoverTool, ColumnDataSource
     
-    #obs = np.array(line.index, dtype=np.datetime64)
-    obs = line.index.tolist()
+    obs = np.array(line.index, dtype=np.datetime64)
     hover = HoverTool(
         tooltips=[
             ("obs", "$index"),
