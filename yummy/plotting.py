@@ -135,7 +135,7 @@ def stackedBarAndLine2(line,stackedbar, namelist=None):
     hover = HoverTool(
         tooltips=[
             ("obs", "$index"),
-            ("Date", "date"),
+            ("Date", "$x"),
             ("Value", "@y"),
             ("Variable", "@variable")
         ]
