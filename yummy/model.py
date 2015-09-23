@@ -193,7 +193,7 @@ class Model(object):
         
         contribs = DataFrame(contribs, index=obs, columns=self.fitdetail
                             .params.keys())
-        plt.stackedBarAndLine(actual, contribs)
+        plt.stackedBarAndLine2(actual, contribs)
 
     def res(self, percent=True):
         """produce a residual chart"""

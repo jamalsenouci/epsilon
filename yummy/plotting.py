@@ -102,6 +102,50 @@ def stackedBarAndLine(line,stackedbar, namelist=None):
     plot.left[0].formatter.use_scientific = False 
     plot.axis.major_tick_line_color = None
     plot.xaxis.major_label_orientation = np.pi/3
+    pos_sum = 0
+    neg_sum = 0
+    for i, contrib in enumerate(stackedbar):
+        name = contrib
+        contrib = stackedbar[contrib] #check this is equivalent to contrib then remove
+        if contrib.max() > 0:
+            #source = ColumnDataSource({'x': obs, 'y': pos_sum+contrib/2, 'variable': contrib})
+            plot.rect(x='x', y='y', source=source, width=1, height=contrib, 
+                      color=_colors[i], alpha=0.6, legend=name)
+            pos_sum += contrib
+        else:
+            #source = ColumnDataSource({'x': obs, 'y': neg_sum+contrib/2 })
+            plot.rect(x='x', y='y', source=source, width=1, height=contrib, 
+                      color=_colors[i], alpha=0.6, legend=name)
+            neg_sum += contrib
+            line -= contrib
+    plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000', 
+              legend=line.name)
+    return bk.show(plot)
+
+def stackedBarAndLine2(line,stackedbar, namelist=None):
+    """TODO: Datetime index"""
+    from pandas.tseries.index import DatetimeIndex
+    import numpy as np
+    from bokeh.models import HoverTool, ColumnDataSource
+    
+    obs = line.index
+    if isinstance(obs, DatetimeIndex):
+        obs = obs.map(lambda x: x.strftime('%d-%b-%y'))
+    obs = obs.tolist()
+    hover = HoverTool(
+        tooltips=[
+            ("obs", "$index"),
+            ("Date", "date"),
+            ("Value", "@y"),
+            ("Variable", "@variable")
+        ]
+    )
+    plot = bk.figure(plot_width=900, plot_height=500, x_range=obs,
+                    x_axis_type=None, tools=[hover,"pan","wheel_zoom","box_zoom","reset","resize"])
+    plot.left[0].formatter.use_scientific = False 
+    plot.grid.grid_line_color = None
+    plot.axis.major_tick_line_color = None
+    plot.xaxis.major_label_orientation = np.pi/3
     #ticker = bokeh.models.formatters.DatetimeTickFormatter()
     #xaxis = bokeh.models.DatetimeAxis(num_labels=10)
     #plot.add_layout(xaxis, 'below')
@@ -111,17 +155,16 @@ def stackedBarAndLine(line,stackedbar, namelist=None):
         name = contrib
         contrib = stackedbar[contrib] #check this is equivalent to contrib then remove
         if contrib.max() > 0:
-            source = ColumnDataSource({'x': obs, 'y': pos_sum+contrib/2, 'variable': contrib})
-            plot.rect(x='x', y='y', source=source, width=1, height=contrib, 
+            source = ColumnDataSource({'x': obs, 'y': pos_sum+contrib/2, 'variable': [str(name) for x in obs]})
+            plot.rect(x='x',y='y', source=source, width=1, height=contrib, 
                       color=_colors[i], alpha=0.6, legend=name)
             pos_sum += contrib
         else:
             source = ColumnDataSource({'x': obs, 'y': neg_sum+contrib/2 })
-            plot.rect(x='x', y='y', source=source, width=1, height=contrib, 
+            plot.rect(x='x',y='y', source=source, width=1, height=contrib, 
                       color=_colors[i], alpha=0.6, legend=name)
             neg_sum += contrib
             line -= contrib
     plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000', 
-              legend=line.name)
+              legend='Sales')
     return bk.show(plot)
-
