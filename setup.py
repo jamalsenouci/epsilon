@@ -11,9 +11,9 @@ if sys.version_info[:2] < (2, 7):
     sys.exit(-1)
 
 install_requires=[
-   'numpy',
-   'pandas',
-   'bokeh'
+    'numpy',
+    'pandas',
+    'bokeh'
 ]
 packages = ["yummy"]
 

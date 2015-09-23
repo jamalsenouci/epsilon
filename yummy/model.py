@@ -6,32 +6,36 @@ class Model(object):
     """
     def __init__(self, data):
         from yummy.data import Data
+        from pandas import DataFrame
         import numpy as np
         
         self.data = Data(data)
+        self.rawdata = data
         self.variables_in = set()
         self.variables_out = None
         self.depvar = None
         self._update_variables()
-        self.obs = self.data.index
-        self.sample = np.ones(len(self.data.index))
+        self.sample = DataFrame(np.ones(len(self.data.index)), index=self.data.index, columns=["Sample"])
         self.fitdetail = None
         
+    def obs(self):
+        obs = self.sample.dropna().index
+        return obs
+
     def add(self, variables):
         """add variables to the model, variables will be placed into the 
         variables_in method"""
+        #TODO: add contribution groups
         #ensure latest variables are in the variable list 
         self._update_variables()
         
         if isinstance(variables, str):
             variables = [variables]
         for var in variables:
-            if var in self.variables_in:
-                print(var + " already in model")
-            elif var in self.variables_out:
+            if var in self.variables_out:
                 self.variables_in.add(var)
                 self.variables_out.remove(var)
-            else:
+            elif var not in self.variables_in:
                 raise ValueError(var+" not in dataset")
     
     def rem(self, variables=None):
@@ -52,8 +56,6 @@ class Model(object):
             if var in self.variables_in:
                 self.variables_in.remove(var)
                 self.variables_out.add(var)
-            else:
-                print(var + " not in model")
     
     def dep(self, name):
         """set the dependent variable, can be a single name for a simple linear 
@@ -65,20 +67,34 @@ class Model(object):
             model from being suspiciously too good')
         if name in self.variables_out:
             self.variables_out.remove(name)
-            self.depvar = self.data[name]
+            depvar = self.data[name]
+            depvar = depvar.dropna(how="all", axis=0)            
+            self.depvar = depvar
+            #create sample based on dep var
+            self.sample = self.data['kpi_portal_regs']/self.data['kpi_portal_regs']
         else:
             print(name + " not in data")
+        
     
     def ols(self, constant=True):
         """fits the specified endogenous and exogenous variables with an OLS
         estimation"""
         import statsmodels.api as sm
+        
+        df = self.data
+        df = df.mul(self.sample, axis=0)
+        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
+        df = df.fillna(0)
+
+        #Y = self.data[self.depvar.name]
+        #x = self.data[list(self.variables_in)]
+
         Y = self.depvar
-        x = self.data[list(self.variables_in)]
+        x = df[list(self.variables_in)]
         if constant == True:
             x = sm.add_constant(x)
         modelspec = sm.OLS(Y,x)
-        return self._fit(modelspec,constant)
+        return self._fit(modelspec)
 
     def var(self, lag):
         """needs to generalise fit function"""
@@ -90,15 +106,10 @@ class Model(object):
         return self._fit(modelspec, params)
 
         
-    def _fit(self, modeltype, constant):
+    def _fit(self, modelspec):
         """generic statsmodels fit function that takes any statsmodels 
         estimation method"""
         import statsmodels.api as sm
-        Y = self.depvar * self.sample
-        x = self.data[list(self.variables_in)].mul(self.sample, axis=0)
-        if constant == True:
-            x = sm.add_constant(x)
-        modelspec = modeltype
         fit = modelspec.fit()
         self.fitdetail = fit
         return fit.summary()
@@ -112,10 +123,25 @@ class Model(object):
         """fix a variable coefficient to a specified number based on other 
         information"""
         pass
+
+    def ttest_ols(self):
+        """implement an ols loop that doesn't require dropna and fillna the data each time"""
+        df = self.data
+        df = df.mul(self.sample, axis=0)
+        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
+        df = df.fillna(0)
+
+        Y = self.depvar
+        x = df[list(self.variables_in)]
+        if constant == True:
+            x = sm.add_constant(x)
+        modelspec = sm.OLS(Y,x)
+        return self._fit(modelspec,constant)
     
     def ttest(self, subset="all"):
         """calculate statistics for variables outside of the model if they were 
         entered"""
+        from yummy.display import grid_display
         from pandas import DataFrame
 
         if subset == "all":
@@ -129,8 +155,9 @@ class Model(object):
             self.rem(var)
         self.ols()
         params = DataFrame(params)
+        params = params[params["coefficient"] != 0]
         params = params.set_index("Variable Name")
-        return params
+        return grid_display(params)
 
     def forecast(self, end_date):
         pass
@@ -145,7 +172,7 @@ class Model(object):
         from pandas import Series
         from pandas import concat
         
-        obs = self.obs
+        obs = self.obs()
         actual = self.depvar
         predict = self.fitdetail.predict()
         model = Series(predict, index=obs, name='Model')
@@ -158,8 +185,7 @@ class Model(object):
         that make up the dependent variable"""
         from pandas import DataFrame
         import yummy.plotting as plt
-        
-        obs = self.obs
+        obs = self.obs()
         actual = self.depvar
         exog = self.fitdetail.model.exog
         coeffs = self.fitdetail.params.values
@@ -169,13 +195,22 @@ class Model(object):
                             .params.keys())
         plt.stackedBarAndLine(actual, contribs)
 
+    def res(self, percent=True):
+        """produce a residual chart"""
+        import yummy.plotting as plt
+        obs = self.obs()
+        resid = self.fitdetail.resid
+        if percent == True:
+            resid = self.fitdetail.resid / self.fitdetail.model.endog
+        plt.line(resid)
+
     def _update_variables(self):
         """internal function that updates the variables_out with new variables
         that have been added to the dataset"""
         from pandas import DataFrame
         allvars = self.data.columns.tolist()
         if self.depvar is not None:
-        	self.variables_out = set(allvars) - self.variables_in - set(self.depvar.name)
+        	self.variables_out = set(allvars) - self.variables_in - {self.depvar.name}
         else:
         	self.variables_out = set(allvars) - self.variables_in
         self.variables = DataFrame(allvars, columns=['Variable Name'])

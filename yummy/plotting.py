@@ -1,6 +1,5 @@
 import bokeh.plotting as bk
 import bokeh
-bokeh.plotting.output_notebook()
 
 _colors = ['#1f77b4',
                   '#ff7f0e',
@@ -48,27 +47,60 @@ def line(df, namelist=None):
     """takes dataframe and plots a line chart"""
     from bokeh.charts import Line
     from pandas.core.series import Series
+    from bokeh.models import HoverTool, ColumnDataSource
+
+    import numpy as np
     if namelist is not None:
         if isinstance(df, Series):
             df.name = namelist
         else:
             df.columns = namelist
-    plt = Line(df)    
-    bk.show(plt)
+
+    hover = HoverTool(
+        tooltips=[
+            ("obs", "$index"),
+            ("Date", "@date"),
+            ("y", "$y")
+        ]
+    )
+
+    plot = bk.figure(plot_width=900, plot_height=500, x_axis_type="datetime",tools=[hover,"pan","wheel_zoom","box_zoom","reset","resize"])
+    plot.left[0].formatter.use_scientific = False
+    plot.xgrid.grid_line_color = None
+    
+    obs = df.index.to_datetime()
+    #obs = np.array(df.index, dtype=np.datetime64)
+    if isinstance(df, Series):
+      source = ColumnDataSource({'x': obs, 'y': df.values , 'date': [x.strftime('%d %b %Y') for x in obs]})
+      plot.circle('x', 'y', source=source, size=4, color='darkgrey', alpha=0.2, legend=df.name)
+      plot.line(obs, df.values, color='navy', legend=df.name)
+    else:
+        for col in df:
+          source = ColumnDataSource({'x': obs, 'y': df[col].values , 'date': df.index.format()})
+          plot.circle('x', 'y', source=source, size=4, color='darkgrey', alpha=0.2, legend=col)
+          plot.line(obs, df[col].values, color='navy', legend=col)
+    bk.show(plot)
 
 def stackedBarAndLine(line,stackedbar, namelist=None):
-    """TODO: Datetime index"""
+    """TODO: Datetime index
+              Use ColumnDataSource to allow HoverTool to pick var name"""
     from pandas.tseries.index import DatetimeIndex
     import numpy as np
+    from bokeh.models import HoverTool, ColumnDataSource
     
-    obs = line.index
-    if isinstance(obs, DatetimeIndex):
-        obs = obs.map(lambda x: x.strftime('%d-%b-%y'))
-    obs = obs.tolist()
-    plot = bk.figure(plot_width=900, plot_height=500, x_range=obs, 
-                    x_axis_type=None)
+    #obs = np.array(line.index, dtype=np.datetime64)
+    obs = line.index.tolist()
+    hover = HoverTool(
+        tooltips=[
+            ("obs", "$index"),
+            ("Date", "($x)"),
+            ("Value", "($y)"),
+            ("Variable", "(@variable)")
+        ]
+    )
+    plot = bk.figure(plot_width=900, plot_height=500, 
+                    x_axis_type=None, tools=[hover,"pan","wheel_zoom","box_zoom","reset","resize"])
     plot.left[0].formatter.use_scientific = False 
-    plot.grid.grid_line_color = None
     plot.axis.major_tick_line_color = None
     plot.xaxis.major_label_orientation = np.pi/3
     #ticker = bokeh.models.formatters.DatetimeTickFormatter()
@@ -80,15 +112,17 @@ def stackedBarAndLine(line,stackedbar, namelist=None):
         name = contrib
         contrib = stackedbar[contrib] #check this is equivalent to contrib then remove
         if contrib.max() > 0:
-            plot.rect(x=obs, y=pos_sum+contrib/2, width=1, height=contrib, 
+            source = ColumnDataSource({'x': obs, 'y': pos_sum+contrib/2, 'variable': contrib})
+            plot.rect(x='x', y='y', source=source, width=1, height=contrib, 
                       color=_colors[i], alpha=0.6, legend=name)
             pos_sum += contrib
         else:
-            plot.rect(x=obs, y=neg_sum+contrib/2, width=1, height=contrib, 
+            source = ColumnDataSource({'x': obs, 'y': neg_sum+contrib/2 })
+            plot.rect(x='x', y='y', source=source, width=1, height=contrib, 
                       color=_colors[i], alpha=0.6, legend=name)
             neg_sum += contrib
             line -= contrib
     plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000', 
-              legend='Sales')
+              legend=line.name)
     return bk.show(plot)
 
