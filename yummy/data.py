@@ -42,7 +42,7 @@ class Data(pd.DataFrame):
         
         Also works on multiple variables.
         """
-        subset = self[var]
+        subset = self[var].fillna(0)
         powered = subset.pow(power)
         powered = self._df_rename(powered,"**",power)
         if inplace:
@@ -67,7 +67,7 @@ class Data(pd.DataFrame):
         
         Also works on multiple variables.
         """
-        subset = self[var]
+        subset = self[var].fillna(0)
         if lag == 0:
             raise ValueError("A lag of zero is pointless!")
         lagged = subset.shift(lag)
@@ -89,7 +89,7 @@ class Data(pd.DataFrame):
         
         Also works on multiple variables.
         """
-        subset = self[var]
+        subset = self[var].fillna(0)
         std = subset.div(subset.max())
         if not isinstance(alphas, list):
             alphas = [alphas]
@@ -112,7 +112,7 @@ class Data(pd.DataFrame):
         
         Also works on multiple variables.
         """
-        subset = self[var]
+        subset = self[var].fillna(0)
         std = subset.div(subset.max())
         if not isinstance(alphas, list):
             alphas = [alphas]
@@ -146,7 +146,7 @@ class Data(pd.DataFrame):
         inplace: boolean            
         """
 
-        subset = self[var]
+        subset = self[var].fillna(0)        
         def _decay(df, dec):
             alpha = 1 - dec
             N = len(df)

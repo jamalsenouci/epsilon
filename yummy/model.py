@@ -96,17 +96,63 @@ class Model(object):
         modelspec = sm.OLS(Y,x)
         return self._fit(modelspec)
 
-    def var(self, lag):
+    def gls(self, constant=True, sigma=None):
+        """fits the specified endogenous and exogenous variables with an OLS
+        estimation"""
+        import statsmodels.api as sm
+        
+        df = self.data
+        df = df.mul(self.sample, axis=0)
+        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
+        df = df.fillna(0)
+
+        #Y = self.data[self.depvar.name]
+        #x = self.data[list(self.variables_in)]
+
+        Y = self.depvar
+        x = df[list(self.variables_in)]
+        if constant == True:
+            x = sm.add_constant(x)
+        modelspec = sm.OLS(Y,x)
+        return self._fit(modelspec)
+
+    def rlm(self, constant=True, M=sm.robust.norms.HuberT(),):
+        """fits the specified endogenous and exogenous variables with as a 
+        robust linear model        estimation"""
+        import statsmodels.api as sm
+        
+        df = self.data
+        df = df.mul(self.sample, axis=0)
+        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
+        df = df.fillna(0)
+
+        #Y = self.data[self.depvar.name]
+        #x = self.data[list(self.variables_in)]
+
+        Y = self.depvar
+        x = df[list(self.variables_in)]
+        if constant == True:
+            x = sm.add_constant(x)
+        modelspec = sm.RLM(Y,x,M)
+        return self._fit(modelspec)
+
+    def var(self, lag='auto'):
         """needs to generalise fit function"""
         import statsmodels.api as sm
+
+        if lag == 'auto':
+            params = {'maxlags'=15, 'ic'='aic'}
+        else:
+            params = {'maxlag'=lag}
         variables = list(self.variables_in)
+        variables.append(self.depvar.name)
         data = self.data(variables)
-        modelspec = sm.VAR(data)
-        params = lag
+        modelspec = sm.tsa.VAR(data)
+        
         return self._fit(modelspec, params)
 
         
-    def _fit(self, modelspec):
+    def _fit(self, modelspec, **kwargs):
         """generic statsmodels fit function that takes any statsmodels 
         estimation method"""
         import statsmodels.api as sm
