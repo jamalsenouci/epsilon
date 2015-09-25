@@ -35,6 +35,7 @@ class Data(pd.DataFrame):
         columns = [x.strip(" ") for x in columns]
         columns = [x.replace(" ", "_") for x in columns]
         self.columns = columns
+        self.index = self.index.to_datetime()
     
     def pow(self, var, power, inplace=True):
         """
@@ -146,7 +147,9 @@ class Data(pd.DataFrame):
         inplace: boolean            
         """
 
-        subset = self[var].fillna(0)        
+        subset = self[var]
+        subset = subset.fillna(0)
+
         def _decay(df, dec):
             alpha = 1 - dec
             N = len(df)
@@ -167,6 +170,7 @@ class Data(pd.DataFrame):
             total.append(applied)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
+        #import pdb; pdb.set_trace()
         if inplace:
             self._update_inplace(result)
         else:

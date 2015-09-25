@@ -32,3 +32,5 @@ class Yummy(object):
         self.model = Model(data)
         self.data = self.model.data
         #self.model.plot = self.plotting.plot
+def help():
+    """function forwards user to documentation"""

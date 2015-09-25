@@ -19,7 +19,7 @@ class Model(object):
         self.fitdetail = None
         
     def obs(self):
-        obs = self.sample.dropna().index
+        obs = self.sample[self.sample == 1].index
         return obs
 
     def add(self, variables):
@@ -68,29 +68,29 @@ class Model(object):
         if name in self.variables_out:
             self.variables_out.remove(name)
             depvar = self.data[name]
-            depvar = depvar.dropna(how="all", axis=0)            
+            #depvar = depvar.dropna(how="all", axis=0)            
             self.depvar = depvar
             #create sample based on dep var
             self.sample = self.data['kpi_portal_regs']/self.data['kpi_portal_regs']
         else:
             print(name + " not in data")
-        
     
+    def _get_exog(self):
+        """function to prepare dataset for modelling"""
+        df = self.data
+        df = df[self.sample == 1]
+        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
+        df = df.fillna(0)
+        df = df[list(self.variables_in)]
+        return df
+
     def ols(self, constant=True):
         """fits the specified endogenous and exogenous variables with an OLS
         estimation"""
         import statsmodels.api as sm
         
-        df = self.data
-        df = df.mul(self.sample, axis=0)
-        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
-        df = df.fillna(0)
-
-        #Y = self.data[self.depvar.name]
-        #x = self.data[list(self.variables_in)]
-
-        Y = self.depvar
-        x = df[list(self.variables_in)]
+        x = self._get_exog()
+        Y = self.depvar[self.sample == 1]
         if constant == True:
             x = sm.add_constant(x)
         modelspec = sm.OLS(Y,x)
@@ -101,39 +101,23 @@ class Model(object):
         estimation"""
         import statsmodels.api as sm
         
-        df = self.data
-        df = df.mul(self.sample, axis=0)
-        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
-        df = df.fillna(0)
-
-        #Y = self.data[self.depvar.name]
-        #x = self.data[list(self.variables_in)]
-
-        Y = self.depvar
-        x = df[list(self.variables_in)]
+        x = self._get_exog()
+        Y = self.depvar[self.sample == 1]
         if constant == True:
             x = sm.add_constant(x)
         modelspec = sm.OLS(Y,x)
         return self._fit(modelspec)
 
-    def rlm(self, constant=True, M=sm.robust.norms.HuberT(),):
+    def rlm(self, constant=True, **kwargs):
         """fits the specified endogenous and exogenous variables with as a 
-        robust linear model        estimation"""
+        robust linear model estimation"""
         import statsmodels.api as sm
         
-        df = self.data
-        df = df.mul(self.sample, axis=0)
-        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
-        df = df.fillna(0)
-
-        #Y = self.data[self.depvar.name]
-        #x = self.data[list(self.variables_in)]
-
-        Y = self.depvar
-        x = df[list(self.variables_in)]
+        x = self._get_exog()
+        Y = self.depvar[self.sample == 1]
         if constant == True:
             x = sm.add_constant(x)
-        modelspec = sm.RLM(Y,x,M)
+        modelspec = sm.RLM(Y,x, **kwargs)
         return self._fit(modelspec)
 
     def var(self, lag='auto'):
@@ -141,9 +125,9 @@ class Model(object):
         import statsmodels.api as sm
 
         if lag == 'auto':
-            params = {'maxlags'=15, 'ic'='aic'}
+            params = {'maxlags':15, 'ic':'aic'}
         else:
-            params = {'maxlag'=lag}
+            params = {'maxlag':lag}
         variables = list(self.variables_in)
         variables.append(self.depvar.name)
         data = self.data(variables)
@@ -169,22 +153,8 @@ class Model(object):
         """fix a variable coefficient to a specified number based on other 
         information"""
         pass
-
-    def ttest_ols(self):
-        """implement an ols loop that doesn't require dropna and fillna the data each time"""
-        df = self.data
-        df = df.mul(self.sample, axis=0)
-        df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
-        df = df.fillna(0)
-
-        Y = self.depvar
-        x = df[list(self.variables_in)]
-        if constant == True:
-            x = sm.add_constant(x)
-        modelspec = sm.OLS(Y,x)
-        return self._fit(modelspec,constant)
     
-    def ttest(self, subset="all"):
+    def ttest(self, subset="all", method='ols'):
         """calculate statistics for variables outside of the model if they were 
         entered"""
         from yummy.display import grid_display
@@ -210,7 +180,6 @@ class Model(object):
     
     def group(self):
         """place variables_in into contribution groups"""
-        #import pandas-qt
     
     def avm(self):
         """produce a line chart of actual data vs fitted data"""
@@ -219,7 +188,7 @@ class Model(object):
         from pandas import concat
         
         obs = self.obs()
-        actual = self.depvar
+        actual = self.depvar[self.sample == 1]
         predict = self.fitdetail.predict()
         model = Series(predict, index=obs, name='Model')
         
@@ -232,7 +201,7 @@ class Model(object):
         from pandas import DataFrame
         import yummy.plotting as plt
         obs = self.obs()
-        actual = self.depvar
+        actual = self.depvar[self.sample == 1]
         exog = self.fitdetail.model.exog
         coeffs = self.fitdetail.params.values
         contribs = (exog*coeffs)

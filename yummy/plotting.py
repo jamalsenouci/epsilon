@@ -144,7 +144,6 @@ def stackedBarAndLine2(line,stackedbar, namelist=None):
     plot = bk.figure(plot_width=900, plot_height=500, x_range=obs,
                     x_axis_type=None, tools=[hover,"pan","wheel_zoom","box_zoom","reset","resize"])
     plot.left[0].formatter.use_scientific = False 
-    plot.grid.grid_line_color = None
     plot.axis.major_tick_line_color = None
     plot.xaxis.major_label_orientation = np.pi/3
     #ticker = bokeh.models.formatters.DatetimeTickFormatter()
@@ -161,7 +160,7 @@ def stackedBarAndLine2(line,stackedbar, namelist=None):
                       color=_colors[i], alpha=0.6, legend=name)
             pos_sum += contrib
         else:
-            source = ColumnDataSource({'x': obs, 'y': neg_sum+contrib/2 })
+            source = ColumnDataSource({'x': obs, 'y': neg_sum+contrib/2, 'variable': [str(name) for x in obs]})
             plot.rect(x='x',y='y', source=source, width=1, height=contrib, 
                       color=_colors[i], alpha=0.6, legend=name)
             neg_sum += contrib
