@@ -288,7 +288,7 @@ class Model(object):
         obs = self.obs()
         self.data[self.sample == 1]
         if dep == True:
-        df = self.data[subset]
+            df = self.data[subset]
             
 
 
