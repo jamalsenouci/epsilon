@@ -23,8 +23,15 @@ class Model(object):
         return obs
 
     def add(self, variables):
-        """add variables to the model, variables will be placed into the 
-        variables_in method"""
+        """
+        add variables to the model, variables will be placed into the 
+        variables_in method
+        
+        Parameters
+        ----------
+        variables: list or string
+                variable or list of variables to remove,
+        """
         #TODO: add contribution groups
         #ensure latest variables are in the variable list 
         self._update_variables()
@@ -38,16 +45,24 @@ class Model(object):
             elif var not in self.variables_in:
                 raise ValueError(var+" not in dataset")
     
-    def rem(self, variables=None):
-        """remove variables from the model, variables will be placed back into 
-        the variables_out method"""
+    def rem(self, variables='all'):
+        """
+        remove variables from the model, variables will be placed back into 
+        the variables_out method
+
+        Parameters
+        ----------
+        variables: list or string, default 'all'
+                variable or list of variables to remove,
+
+        """
         #ensure latest variables are in the variable list 
         self._update_variables()
 
         if self.variables_in == set():
             return
 
-        if variables == None:
+        if variables == 'all':
             variables = list(self.variables_in)
         
         if isinstance(variables, str):
@@ -58,8 +73,15 @@ class Model(object):
                 self.variables_out.add(var)
     
     def dep(self, name):
-        """set the dependent variable, can be a single name for a simple linear 
+        """
+        set the dependent variable, can be a single name for a simple linear 
         regression. Panel regression not yet implemented.
+        
+        Parameters
+        ----------
+        name : string
+                the name of the dependent variable
+
         """
         if name in self.variables_in:
             self.variables_in.remove(name)
@@ -85,8 +107,15 @@ class Model(object):
         return df
 
     def ols(self, constant=True):
-        """fits the specified endogenous and exogenous variables with an OLS
-        estimation"""
+        """
+        fits the specified endogenous and exogenous variables with an OLS
+        estimation
+
+        Parameters
+        ----------
+        constant : Boolean, default True
+                estimate the model with a constant
+        """
         import statsmodels.api as sm
         
         x = self._get_exog()
@@ -155,14 +184,28 @@ class Model(object):
         pass
     
     def ttest(self, subset="all", method='ols'):
-        """calculate statistics for variables outside of the model if they were 
-        entered"""
+        """
+        view statistics for variables outside of the model if they were 
+        entered into the model
+
+        Parameters
+        ----------
+        subset : list or string
+                variable or list of variables to test
+        method : string, default ols
+                estimation method to use
+        """
         from yummy.display import grid_display
         from pandas import DataFrame
 
         if subset == "all":
             self._update_variables()
             subset = self.variables_out
+        elif type(subset) == str:
+            import re
+            match = [re.match(subset, x) for x in self.data.columns]
+            match = [x.string for x in match if x is not None]
+            subset = match 
         params = []
         for var in subset:
             self.add(var)
@@ -175,7 +218,7 @@ class Model(object):
         params = params.set_index("Variable Name")
         return grid_display(params)
 
-    def forecast(self, end_date):
+    def forecast(self, sample):
         pass
     
     def group(self):
@@ -211,7 +254,15 @@ class Model(object):
         plt.stackedBarAndLine2(actual, contribs)
 
     def res(self, percent=True):
-        """produce a residual chart"""
+        """
+        produce a residual chart
+
+        Parameters
+        ----------
+        percent : Boolean
+                display in percentage terms
+        """
+
         import yummy.plotting as plt
         obs = self.obs()
         resid = self.fitdetail.resid
@@ -219,6 +270,28 @@ class Model(object):
         if percent == True:
             resid = self.fitdetail.resid / self.fitdetail.model.endog
         plt.line(resid)
+
+    def plot(self, subset, dep=False, sample=True):
+        """
+        produce a plot of the variable
+
+        Parameters
+        ----------
+        subset : list or string
+                variable or list of variables to plot
+        dep : Boolean, default False
+                plot variable against the dependent variable
+        sample : True
+                only plot observations within the model sample period
+
+        """
+        obs = self.obs()
+        self.data[self.sample == 1]
+        if dep == True:
+        df = self.data[subset]
+            
+
+
 
     def _update_variables(self):
         """internal function that updates the variables_out with new variables

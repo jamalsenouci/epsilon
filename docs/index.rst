@@ -18,6 +18,7 @@ It is intended for use in the IPython notebook
    >>> yo.data.corr()
    >>> yo.model.dep = 'income'
    >>> yo.model.add = 'foodexp'
+   >>> yo.model.ols()
 
 
 Tutorial

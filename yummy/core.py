@@ -34,3 +34,5 @@ class Yummy(object):
         #self.model.plot = self.plotting.plot
 def help():
     """function forwards user to documentation"""
+    #not implemented
+    pass
