@@ -223,6 +223,11 @@ class Model(object):
     
     def group(self):
         """place variables_in into contribution groups"""
+        pass
+
+    def export(self, path):
+        """export model to csv"""
+        pass
     
     def avm(self):
         """produce a line chart of actual data vs fitted data"""
