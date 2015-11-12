@@ -36,6 +36,13 @@ class Data(pd.DataFrame):
         columns = [x.replace(" ", "_") for x in columns]
         self.columns = columns
         self.index = self.index.to_datetime()
+
+    def handle_nonnumeric(self):
+        """
+        need to deal with import of non-numeric data
+        """
+        len(self.columns)
+
     
     def pow(self, var, power, inplace=True):
         """
@@ -59,6 +66,7 @@ class Data(pd.DataFrame):
         else:
             df.columns = df.columns.map(lambda x: str(x)+suffix+str(param))
             df = df[df.columns.difference(self.columns)]
+            # TODO print warning if variables already exist
         return df
 
 
@@ -100,7 +108,7 @@ class Data(pd.DataFrame):
             atan = self._df_rename(atan,"_atan",alpha)
             total.append(atan)
         total = pd.concat(total, axis=1)
-        result = pd.concat([self, atan], axis=1)
+        result = pd.concat([self, total], axis=1)
         if inplace:
             self._update_inplace(result)
         else:
@@ -129,7 +137,55 @@ class Data(pd.DataFrame):
         else:
             return result
 
-    def decay(self, var, decays=None, inplace=True):
+    def adstock(self,var, adstocks, inplace=True):
+        """
+        Create adstock(s) of a variable(s)
+        Used to model advertising carryover into the next period.
+        Also works on multiple variables.
+
+        Example
+        -------
+            ym.data.adstock(["Mother's Day Media Spend","Suncare Media Spend"], adstocks=[0.9,0.8])``
+
+        Attributes
+        ----------
+        var: list or string
+        decays: list or float
+        inplace: boolean          
+        """
+        if isinstance(adstocks, float):
+            adstocks = [adstocks]
+        decays = [1-adstock for adstock in adstocks]
+        subset = self[var]
+        subset = subset.fillna(0)
+
+        def _decay(df, dec):
+            alpha = 1 - dec
+            N = len(df)
+            output = np.array(np.empty(N, dtype=float))
+            decayed = df[0]
+            output[0] = decayed
+            for i in range(1, N):
+                cur = df[i]
+                decayed = ((alpha * decayed) + cur)
+                output[i] = decayed
+            return output
+        if isinstance(decays, float):
+            decays = [decays]
+        total = []
+        for dec in decays:
+            applied = subset.apply(lambda x: _decay(x, dec))
+            applied = self._df_rename(applied,"_adstock",dec)
+            total.append(applied)
+        total = pd.concat(total, axis=1)
+        result = pd.concat([self, total], axis=1)
+        #import pdb; pdb.set_trace()
+        if inplace:
+            self._update_inplace(result)
+        else:
+            return result
+
+    def decay(self, var, decays, inplace=True):
         """
         Create a new variable that decays away over time
         Used to model advertising carryover into the next period.
@@ -138,7 +194,7 @@ class Data(pd.DataFrame):
 
         Example
         -------
-            ym.data.decay(["Mother's Day Media Spend","Suncare Media Spend"], [0.9,0.8], inplace=True)``
+            ym.data.decay(["Mother's Day Media Spend","Suncare Media Spend"], [0.9,0.8])``
 
         Attributes
         ----------
