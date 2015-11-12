@@ -34,5 +34,5 @@ class Yummy(object):
         #self.model.plot = self.plotting.plot
 def help():
     """function forwards user to documentation"""
-    #not implemented
-    pass
+    import webbrowser
+    webbrowser.open_new_tab('http://localhost:6757')
