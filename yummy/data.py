@@ -11,8 +11,8 @@ class Data(pd.DataFrame):
     --------
     >>> from pandas import DataFrame
     >>> import numpy as np
-    >>> df = DataFrame({'a': [True, False] * 3,
-    ...                 'b': [1.0, 2.0] * 3})
+    >>> df = DataFrame(data = {'a': [True, False] * 3,
+    ...                 'b': [1.0, 2.0] * 3}, index=[0,1,2,3,4,5])
     >>> data = Data(df)
     >>> data
            a  b
