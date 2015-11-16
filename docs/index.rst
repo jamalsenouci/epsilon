@@ -9,10 +9,11 @@ Contents:
 
    overview
    installation
-   tutorial
    getting_started
-   developerguide
-   examples
+   tutorial/index
+   developer/index
+   examples/index
+   bugtracking
 
 
 Indices and tables
