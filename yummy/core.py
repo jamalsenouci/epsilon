@@ -32,6 +32,18 @@ class Yummy(object):
         self.model = Model(data)
         self.data = self.model.data
         #self.model.plot = self.plotting.plot
+
+    def reset(self):
+        """
+        function to reset data back to original dataset
+
+        useful when you overwrite variable, doesn't require network access
+
+        """
+        from yummy.model import Model
+        self.model = Model(self.model.rawdata)
+        self.data = self.model.rawdata
+
 def help():
     """function forwards user to documentation"""
     import webbrowser
