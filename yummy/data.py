@@ -269,8 +269,6 @@ class Data(pd.DataFrame):
     def line(self, var):
         """Convenience method to chart variables together"""
         import yummy.plotting as plt
-        if not isinstance(var, list):
-            alphas = [var]
         subset = self[var]
         obs = subset.index
         plt.line(subset)
