@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 class Data(pd.DataFrame):
     """ Wrapper around a Pandas DataFrame providing data transformation methods specific to marketing modelling
-    
+
     Parameters
     ----------
     dataframe : Pandas DataFrame
@@ -22,13 +22,13 @@ class Data(pd.DataFrame):
     3  False  2
     4   True  1
     5  False  2
-    
+
 
     See also
     --------
     yummy.load
     """
-    
+
     def __init__(self, data=None, index=None, columns=None, dtype=None,copy=False):
         super(Data, self).__init__(data, index, columns, dtype, copy)
         columns = [x.lower() for x in self.columns]
@@ -43,11 +43,27 @@ class Data(pd.DataFrame):
         """
         len(self.columns)
 
-    
+    def handle_duplicate(self):
+        """
+        need to deal with import of duplicate data
+        """
+        len(self.columns)
+
+    def check_duplicates_names(self, df):
+        seen = set()
+        dup = []
+        for col in df.columns:
+            if col not in seen:
+                seen.add(col)
+            else:
+                dup.append(col)
+        return dup
+
+
     def pow(self, var, power, inplace=True):
         """
         Create new variable that is a specified variable raised to a given power
-        
+
         Also works on multiple variables.
         """
         subset = self[var].fillna(0)
@@ -57,7 +73,7 @@ class Data(pd.DataFrame):
             self._update_inplace(result)
         else:
             return result
-    
+
     def _df_rename(self, df, suffix, param):
         if isinstance(df, pd.core.series.Series):
             df.name = str(df.name)+suffix+str(param)
@@ -73,7 +89,7 @@ class Data(pd.DataFrame):
     def lag(self, var, lag, val, inplace=True):
         """
         Create a new variable that is a lag or lead of a specified variable.
-        
+
         Also works on multiple variables.
         """
         subset = self[var].fillna(0)
@@ -95,7 +111,7 @@ class Data(pd.DataFrame):
         """
         Create a new variable that is an atan transformation of a specified variable.
         Used to model diminishing returns, creates a concave transformation
-        
+
         Also works on multiple variables.
         """
         subset = self[var].fillna(0)
@@ -113,12 +129,12 @@ class Data(pd.DataFrame):
             self._update_inplace(result)
         else:
             return result
-    
+
     def atansq(self, var, alphas, inplace=True):
         """
         Create a new variable that is a squared atan transformation of a specified variable.
         Used to model either diminishing and increasing returns, creates an s-shaped transformation
-        
+
         Also works on multiple variables.
         """
         subset = self[var].fillna(0)
@@ -151,7 +167,7 @@ class Data(pd.DataFrame):
         ----------
         var: list or string
         decays: list or float
-        inplace: boolean          
+        inplace: boolean
         """
         if isinstance(adstocks, float):
             adstocks = [adstocks]
@@ -200,7 +216,7 @@ class Data(pd.DataFrame):
         ----------
         var: list or string
         decays: list or float
-        inplace: boolean            
+        inplace: boolean
         """
 
         subset = self[var]
@@ -236,7 +252,7 @@ class Data(pd.DataFrame):
         """
         Create a new variable that is a multiplicative combination of two variables.
         Used to model interaction between two variables. e.g. Promotion and Media
-        
+
         Also works on multiple variables.
         decays a variable
         """
@@ -254,7 +270,7 @@ class Data(pd.DataFrame):
             self._update_inplace(result)
         else:
             return result
-    
+
     def to_frame(self):
         """convert yummy Data object to pandas DataFrame"""
         from pandas import DataFrame
@@ -270,6 +286,9 @@ class Data(pd.DataFrame):
         """Convenience method to chart variables together"""
         import yummy.plotting as plt
         subset = self[var]
+
+        if self.check_duplicates_names(subset) != []:
+            raise NameError('variables with duplicate names selected')
+
         obs = subset.index
         plt.line(subset)
-

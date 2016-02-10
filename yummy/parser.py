@@ -34,12 +34,13 @@ def read_folder(folderpath):
         matches = [x for x in matches if "~" not in x]
 
         data = []
-        for file in matches:
-                try :
-                    temp = pd.read_excel(file, sheetname='Output', header=3)
-                    data.append(temp)
-                except:
-                    pass
+        for i, file in enumerate(matches):
+            print("Processing file {0} of ".format(i + 1) + str(len(matches) + 1), end="\r")
+            try :
+                temp = pd.read_excel(file, sheetname='Output', header=3)
+                data.append(temp)
+            except:
+                pass
         df = pd.concat(data, axis=1)
         df.to_csv(folderpath + '/AllData.csv')
         

@@ -18,24 +18,24 @@ _colors = ['#1f77b4',
                   '#ffbb78',
                   '#98df8a',
                   '#ff9896']
-        
+
 
 def line2(varlist, namelist=None):
     """takes in a dataframe and plots series as lines"""
     from pandas.core.series import Series
     from pandas.tseries.index import DatetimeIndex
-    
+
     if namelist is None:
         if isinstance(varlist, Series):
             namelist = varlist.name
         else:
             namelist = varlist.columns
-    
+
     obs = varlist.index
     if isinstance(obs, DatetimeIndex):
         obs = obs.map(lambda x: x.strftime('%d-%b-%y'))
     obs = obs.tolist()
-    
+
     plot = bk.Figure(plot_width=900, plot_height=500, x_range=obs)
     plot.xaxis.major_label_orientation = np.pi/3
     plot.left[0].formatter.use_scientific = False
@@ -44,7 +44,16 @@ def line2(varlist, namelist=None):
     return bk.show(plot)
 
 def line(df, namelist=None):
-    """takes dataframe and plots a line chart"""
+    """
+    takes dataframe and plots a line chart
+
+    Parameters
+    ---------
+
+    df : the dataframe of series to chart
+    namelist : a list of display names if variable names are not desirable
+
+    """
     from bokeh.charts import Line
     from pandas.core.series import Series
     from bokeh.models import HoverTool, ColumnDataSource
@@ -68,7 +77,7 @@ def line(df, namelist=None):
     plot = bk.figure(plot_width=900, plot_height=500, x_axis_type="datetime",tools=[hover,"pan","wheel_zoom","box_zoom","reset","resize"])
     plot.left[0].formatter.use_scientific = False
     plot.xgrid.grid_line_color = None
-    
+
     obs = df.index.to_datetime()
     #obs = np.array(df.index, dtype=np.datetime64)
     if isinstance(df, Series):
@@ -76,7 +85,7 @@ def line(df, namelist=None):
       plot.circle('x', 'y', source=source, size=4, color='darkgrey', alpha=0.1, legend=df.name)
       plot.line(obs, df.values, color='navy', legend=df.name)
     else:
-        for i, col in enumerate(df):
+        for i, col in enumerate(df.columns):
           source = ColumnDataSource({'x': obs, 'y': df[col].values , 'date': df.index.format(), 'variable':[df[col].name for x in obs]})
           plot.circle('x', 'y', source=source, size=4, color=_colors[i], alpha=0.2, legend=col)
           plot.line(obs, df[col].values, color=_colors[i], legend=col)
@@ -88,7 +97,7 @@ def stackedBarAndLine(line,stackedbar, namelist=None):
     from pandas.tseries.index import DatetimeIndex
     import numpy as np
     from bokeh.models import HoverTool, ColumnDataSource
-    
+
     obs = np.array(line.index, dtype=np.datetime64)
     hover = HoverTool(
         tooltips=[
@@ -98,9 +107,9 @@ def stackedBarAndLine(line,stackedbar, namelist=None):
             ("Variable", "(@variable)")
         ]
     )
-    plot = bk.figure(plot_width=900, plot_height=500, 
+    plot = bk.figure(plot_width=900, plot_height=500,
                     x_axis_type=None, tools=[hover,"pan","wheel_zoom","box_zoom","reset","resize"])
-    plot.left[0].formatter.use_scientific = False 
+    plot.left[0].formatter.use_scientific = False
     plot.axis.major_tick_line_color = None
     plot.xaxis.major_label_orientation = np.pi/3
     pos_sum = 0
@@ -110,16 +119,16 @@ def stackedBarAndLine(line,stackedbar, namelist=None):
         contrib = stackedbar[contrib] #check this is equivalent to contrib then remove
         if contrib.max() > 0:
             #source = ColumnDataSource({'x': obs, 'y': pos_sum+contrib/2, 'variable': contrib})
-            plot.rect(x='x', y='y', source=source, width=1, height=contrib, 
+            plot.rect(x='x', y='y', source=source, width=1, height=contrib,
                       color=_colors[i], alpha=0.6, legend=name)
             pos_sum += contrib
         else:
             #source = ColumnDataSource({'x': obs, 'y': neg_sum+contrib/2 })
-            plot.rect(x='x', y='y', source=source, width=1, height=contrib, 
+            plot.rect(x='x', y='y', source=source, width=1, height=contrib,
                       color=_colors[i], alpha=0.6, legend=name)
             neg_sum += contrib
             line -= contrib
-    plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000', 
+    plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000',
               legend=line.name)
     return bk.show(plot)
 
@@ -128,7 +137,7 @@ def stackedBarAndLine2(line,stackedbar, namelist=None):
     from pandas.tseries.index import DatetimeIndex
     import numpy as np
     from bokeh.models import HoverTool, ColumnDataSource
-    
+
     obs = line.index
     if isinstance(obs, DatetimeIndex):
         obs = obs.map(lambda x: x.strftime('%d-%b-%y'))
@@ -143,7 +152,7 @@ def stackedBarAndLine2(line,stackedbar, namelist=None):
     )
     plot = bk.figure(plot_width=900, plot_height=500, x_range=obs,
                     x_axis_type=None, tools=[hover,"pan","wheel_zoom","box_zoom","reset","resize"])
-    plot.left[0].formatter.use_scientific = False 
+    plot.left[0].formatter.use_scientific = False
     plot.axis.major_tick_line_color = None
     plot.xaxis.major_label_orientation = np.pi/3
     #ticker = bokeh.models.formatters.DatetimeTickFormatter()
@@ -156,15 +165,15 @@ def stackedBarAndLine2(line,stackedbar, namelist=None):
         contrib = stackedbar[contrib] #check this is equivalent to contrib then remove
         if contrib.max() > 0:
             source = ColumnDataSource({'x': obs, 'y': pos_sum+contrib/2, 'variable': [str(name) for x in obs]})
-            plot.rect(x='x',y='y', source=source, width=1, height=contrib, 
+            plot.rect(x='x',y='y', source=source, width=1, height=contrib,
                       color=_colors[i], alpha=0.6, legend=name)
             pos_sum += contrib
         else:
             source = ColumnDataSource({'x': obs, 'y': neg_sum+contrib/2, 'variable': [str(name) for x in obs]})
-            plot.rect(x='x',y='y', source=source, width=1, height=contrib, 
+            plot.rect(x='x',y='y', source=source, width=1, height=contrib,
                       color=_colors[i], alpha=0.6, legend=name)
             neg_sum += contrib
             line -= contrib
-    plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000', 
+    plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000',
               legend='Sales')
     return bk.show(plot)
