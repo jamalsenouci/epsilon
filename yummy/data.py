@@ -49,7 +49,7 @@ class Data(pd.DataFrame):
         """
         len(self.columns)
 
-    def check_duplicates_names(self, df):
+    def _check_duplicates_names(self, df):
         seen = set()
         dup = []
         for col in df.columns:
