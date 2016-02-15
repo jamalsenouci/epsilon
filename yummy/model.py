@@ -93,7 +93,7 @@ class Model(object):
             #depvar = depvar.dropna(how="all", axis=0)            
             self.depvar = depvar
             #create sample based on dep var
-            self.sample = self.data['kpi_portal_regs']/self.data['kpi_portal_regs']
+            self.sample = self.data[depvar]/self.data[depvar]
         else:
             print(name + " not in data")
     
