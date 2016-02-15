@@ -287,7 +287,7 @@ class Data(pd.DataFrame):
         import yummy.plotting as plt
         subset = self[var]
 
-        if self.check_duplicates_names(subset) != []:
+        if self._check_duplicates_names(subset) != []:
             raise NameError('variables with duplicate names selected')
 
         obs = subset.index
