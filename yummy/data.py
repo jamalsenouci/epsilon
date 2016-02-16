@@ -1,7 +1,11 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+
 class Data(pd.DataFrame):
-    """ Wrapper around a Pandas DataFrame providing data transformation methods specific to marketing modelling
+    """
+    Wrapper around a Pandas DataFrame providing data
+    transformation methods specific to marketing modelling
 
     Parameters
     ----------
@@ -27,9 +31,10 @@ class Data(pd.DataFrame):
     See also
     --------
     yummy.load
+
     """
 
-    def __init__(self, data=None, index=None, columns=None, dtype=None,copy=False):
+    def __init__(self, data=None, index=None, columns=None, dtype=None, copy=False):
         super(Data, self).__init__(data, index, columns, dtype, copy)
         columns = [x.lower() for x in self.columns]
         columns = [x.strip(" ") for x in columns]
@@ -38,15 +43,11 @@ class Data(pd.DataFrame):
         self.index = self.index.to_datetime()
 
     def handle_nonnumeric(self):
-        """
-        need to deal with import of non-numeric data
-        """
+        """need to deal with import of non-numeric data"""
         len(self.columns)
 
     def handle_duplicate(self):
-        """
-        need to deal with import of duplicate data
-        """
+        """to deal with import of duplicate data"""
         len(self.columns)
 
     def _check_duplicates_names(self, df):
@@ -59,32 +60,34 @@ class Data(pd.DataFrame):
                 dup.append(col)
         return dup
 
-
     def pow(self, var, power, inplace=True):
         """
-        Create new variable that is a specified variable raised to a given power
+        Create new variable that is a specified
+        variable raised to a given power
 
         Also works on multiple variables.
         """
         subset = self[var].fillna(0)
         powered = subset.pow(power)
-        powered = self._df_rename(powered,"**",power)
+        powered = self._df_rename(powered, "**", power)
         if inplace:
             self._update_inplace(result)
         else:
             return result
 
     def _df_rename(self, df, suffix, param):
+        """
+        internal function to rename variables that have been transformed
+        """
         if isinstance(df, pd.core.series.Series):
             df.name = str(df.name)+suffix+str(param)
             if df.name in self.columns:
                 df = None
         else:
             df.columns = df.columns.map(lambda x: str(x)+suffix+str(param))
-            df = df[df.columns.difference(self.columns)]
-            # TODO print warning if variables already exist
-        return df
-
+            unique_df = df[df.columns.difference(self.columns)]
+            # TODO print warning if variables already exist df.columns is different from new_df.columns
+        return unique_df
 
     def lag(self, var, lag, val, inplace=True):
         """
@@ -144,7 +147,7 @@ class Data(pd.DataFrame):
         total = []
         for alpha in alphas:
             atansq = (np.arctan(std/alpha)**2)/(np.pi/2)
-            atansq = self._df_rename(atansq,"_atansq",alpha)
+            atansq = self._df_rename(atansq, "_atansq", alpha)
             total.append(atansq)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
