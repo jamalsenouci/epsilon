@@ -28,15 +28,11 @@ class Yummy(object):
     """
 
     def __init__(self, data):
+        from yummy.utils import drop_constant
         from yummy.model import Model
-        data = self.drop_constant(data)
+        data = drop_constant(data)
         self.model = Model(data)
         self.data = self.model.data
-
-    def drop_constant(data):
-        keepcolumns = data.columns[data.std() != 0]
-        data = data[keepcolumns]
-        return data
 
 
     def reset(self):
