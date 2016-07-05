@@ -16,12 +16,13 @@ class Model(object):
         self.variables_out = None
         self.depvar = None
         self._update_variables()
-        self.sample = DataFrame(np.ones(len(self.data.index)), index=self.data.index, columns=["Sample"])
+        self.sample = (:,:)
         self.fitdetail = None
         self.plotting = ModelPlots(self)
 
     def obs(self):
-        obs = self.sample[self.sample == 1].index
+        keep_rows = sample[0]
+        obs = keep_rows[keep_rows == True].index
         return obs
 
     def add(self, variables):
@@ -85,6 +86,7 @@ class Model(object):
                 the name of the dependent variable
 
         """
+        from yummy.misc import drop_constant
         if name in self.variables_in:
             self.variables_in.remove(name)
             print('Dependent Variable removed from variables in to prevent the \
@@ -95,14 +97,16 @@ class Model(object):
             #depvar = depvar.dropna(how="all", axis=0)
             self.depvar = depvar
             #create sample based on dep var
-            self.sample = self.data[name]/self.data[name]
+            keep_columns = pd.notnull(self.data[name])
+            keep_rows = has_variation(self.data)
+            self.sample = (keep_rows, keep_columns)
         else:
             print(name + " not in data")
 
     def _get_exog(self):
         """function to prepare dataset for modelling"""
         df = self.data
-        df = df[self.sample == 1]
+        df = df.loc[self.sample]
         df = df.dropna(how="all", subset=[self.depvar.name], axis=0)
         df = df.fillna(0)
         df = df[list(self.variables_in)]
@@ -121,7 +125,7 @@ class Model(object):
         import statsmodels.api as sm
 
         x = self._get_exog()
-        Y = self.depvar[self.sample == 1]
+        Y = self.depvar.loc[self.sample]
         if constant == True:
             x = sm.add_constant(x)
         modelspec = sm.OLS(Y,x)
@@ -133,7 +137,7 @@ class Model(object):
         import statsmodels.api as sm
 
         x = self._get_exog()
-        Y = self.depvar[self.sample == 1]
+        Y = self.depvar.loc[self.sample]
         if constant == True:
             x = sm.add_constant(x)
         modelspec = sm.OLS(Y,x)
@@ -145,7 +149,7 @@ class Model(object):
         import statsmodels.api as sm
 
         x = self._get_exog()
-        Y = self.depvar[self.sample == 1]
+        Y = self.depvar.loc[self.sample]
         if constant == True:
             x = sm.add_constant(x)
         modelspec = sm.RLM(Y,x, **kwargs)

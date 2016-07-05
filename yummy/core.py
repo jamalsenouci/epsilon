@@ -28,9 +28,9 @@ class Yummy(object):
     """
 
     def __init__(self, data):
-        from yummy.utils import drop_constant
+        from yummy.utils import has_no_variation
         from yummy.model import Model
-        data = drop_constant(data)
+        data = data[has_variation(data)]
         self.model = Model(data)
         self.data = self.model.data
 

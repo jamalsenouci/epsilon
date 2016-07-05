@@ -1,4 +1,3 @@
-def drop_constant(data):
+def has_variation(data):
     keepcolumns = data.columns[data.std() != 0]
-    data = data[keepcolumns]
-    return data
+    return keepcolumns
