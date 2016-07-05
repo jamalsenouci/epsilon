@@ -20,18 +20,24 @@ class Yummy(object):
     3  False  2
     4   True  1
     5  False  2
-    
-    
+
+
     See also
     --------
     yummy.load
     """
+
     def __init__(self, data):
         from yummy.model import Model
-        
+        data = self.drop_constant(data)
         self.model = Model(data)
         self.data = self.model.data
-        #self.model.plot = self.plotting.plot
+
+    def drop_constant(data):
+        keepcolumns = data.columns[data.std() != 0]
+        data = data[keepcolumns]
+        return data
+
 
     def reset(self):
         """
