@@ -1,6 +1,3 @@
-import bokeh.plotting as bk
-import bokeh
-
 _colors = ['#1f77b4',
                   '#ff7f0e',
                   '#2ca02c',
@@ -18,6 +15,75 @@ _colors = ['#1f77b4',
                   '#ffbb78',
                   '#98df8a',
                   '#ff9896']
+
+
+class ModelPlots(object):
+    def __init__(self, model):
+        self.model = model
+
+    def avm(self):
+        """Produce a line chart of actual data vs fitted data."""
+        from pandas import Series
+        from pandas import concat
+
+        obs = self.model.obs()
+        actual = self.model.depvar[self.model.sample == 1]
+        predict = self.model.fitdetail.predict()
+        model = Series(predict, index=obs, name='Model')
+
+        combined = concat([actual, model], axis=1)
+        line(combined)
+
+    def con(self):
+        """Produce a contribution chart. A stacked chart of all the components
+        that make up the dependent variable"""
+        from pandas import DataFrame
+        obs = self.model.obs()
+        actual = self.model.depvar[self.model.sample == 1]
+        exog = self.model.fitdetail.model.exog
+        coeffs = self.model.fitdetail.params.values
+        contribs = (exog*coeffs)
+
+        contribs = DataFrame(contribs, index=obs, columns=self.model.fitdetail
+                            .params.keys())
+        stackedBarAndLine2(actual, contribs)
+
+
+    def res(self, percent=True):
+        """
+        Produce a residual chart.
+
+        Parameters
+        ----------
+        percent : Boolean
+                display in percentage terms
+        """
+
+        obs = self.model.obs()
+        resid = self.model.fitdetail.resid
+        resid.name = "Residuals"
+        if percent == True:
+            resid = self.model.fitdetail.resid / self.model.fitdetail.model.endog
+        line(resid)
+
+    def plot(self, subset, dep=False, sample=True):
+        """
+        Produce a plot of the variable.
+
+        Parameters
+        ----------
+        subset : list or string
+                variable or list of variables to plot
+        dep : Boolean, default False
+                plot variable against the dependent variable
+        sample : True
+                only plot observations within the model sample period
+
+        """
+        obs = self.obs()
+        self.data[self.sample == 1]
+        if dep == True:
+            df = self.data[subset]
 
 
 def line2(varlist, namelist=None):
