@@ -16,13 +16,14 @@ class Model(object):
         self.variables_out = None
         self.depvar = None
         self._update_variables()
-        self.sample = (:,:)
         self.fitdetail = None
         self.plotting = ModelPlots(self)
+        self.sample = ([True]*len(self.data.index),
+                       [True] * len(self.data.columns))
 
     def obs(self):
         keep_rows = sample[0]
-        obs = keep_rows[keep_rows == True].index
+        obs = keep_rows[keep_rows is True].index
         return obs
 
     def add(self, variables):
@@ -59,7 +60,7 @@ class Model(object):
                 variable or list of variables to remove,
 
         """
-        #ensure latest variables are in the variable list
+        # ensure latest variables are in the variable list
         self._update_variables()
 
         if self.variables_in == set():
@@ -86,7 +87,7 @@ class Model(object):
                 the name of the dependent variable
 
         """
-        from yummy.misc import drop_constant
+        from yummy.utils import has_variation
         if name in self.variables_in:
             self.variables_in.remove(name)
             print('Dependent Variable removed from variables in to prevent the \
@@ -94,9 +95,8 @@ class Model(object):
         if name in self.variables_out:
             self.variables_out.remove(name)
             depvar = self.data[name]
-            #depvar = depvar.dropna(how="all", axis=0)
             self.depvar = depvar
-            #create sample based on dep var
+            # create sample based on dep var
             keep_columns = pd.notnull(self.data[name])
             keep_rows = has_variation(self.data)
             self.sample = (keep_rows, keep_columns)
@@ -126,9 +126,9 @@ class Model(object):
 
         x = self._get_exog()
         Y = self.depvar.loc[self.sample]
-        if constant == True:
+        if constant is True:
             x = sm.add_constant(x)
-        modelspec = sm.OLS(Y,x)
+        modelspec = sm.OLS(Y, x)
         return self._fit(modelspec)
 
     def gls(self, constant=True, sigma=None):
@@ -138,9 +138,9 @@ class Model(object):
 
         x = self._get_exog()
         Y = self.depvar.loc[self.sample]
-        if constant == True:
+        if constant is True:
             x = sm.add_constant(x)
-        modelspec = sm.OLS(Y,x)
+        modelspec = sm.OLS(Y, x)
         return self._fit(modelspec)
 
     def rlm(self, constant=True, **kwargs):
@@ -150,9 +150,9 @@ class Model(object):
 
         x = self._get_exog()
         Y = self.depvar.loc[self.sample]
-        if constant == True:
+        if constant is True:
             x = sm.add_constant(x)
-        modelspec = sm.RLM(Y,x, **kwargs)
+        modelspec = sm.RLM(Y, x, **kwargs)
         return self._fit(modelspec)
 
     def var(self, lag='auto'):
@@ -160,16 +160,15 @@ class Model(object):
         import statsmodels.api as sm
 
         if lag == 'auto':
-            params = {'maxlags':15, 'ic':'aic'}
+            params = {'maxlags': 15, 'ic': 'aic'}
         else:
-            params = {'maxlag':lag}
+            params = {'maxlag': lag}
         variables = list(self.variables_in)
         variables.append(self.depvar.name)
         data = self.data(variables)
         modelspec = sm.tsa.VAR(data)
 
         return self._fit(modelspec, params)
-
 
     def _fit(self, modelspec, **kwargs):
         """generic statsmodels fit function that takes any statsmodels
@@ -181,7 +180,7 @@ class Model(object):
 
     def sample(self, period):
         """restrict the modelling period to a sample of the total dataset"""
-        #set sample obs handsontable widget
+        # set sample obs widget
         pass
 
     def fix(self, variables, values):
@@ -216,7 +215,11 @@ class Model(object):
         for var in subset:
             self.add(var)
             self.ols()
-            params.append({"Variable Name":var, "coefficient":self.fitdetail.params[var], "t-stat":self.fitdetail.tvalues[var], "PValue":self.fitdetail.pvalues[var], "Adjusted Rsquared":self.fitdetail.rsquared_adj})
+            params.append({"Variable Name": var,
+                           "coefficient": self.fitdetail.params[var],
+                           "t-stat": self.fitdetail.tvalues[var],
+                           "PValue": self.fitdetail.pvalues[var],
+                           "Adjusted Rsquared": self.fitdetail.rsquared_adj})
             self.rem(var)
         self.ols()
         params = DataFrame(params)
@@ -235,14 +238,15 @@ class Model(object):
         """export model to csv"""
         pass
 
-
     def _update_variables(self):
         """internal function that updates the variables_out with new variables
         that have been added to the dataset"""
         from pandas import DataFrame
         allvars = self.data.columns.tolist()
         if self.depvar is not None:
-        	self.variables_out = set(allvars) - self.variables_in - {self.depvar.name}
+            self.variables_out = (set(allvars)
+                                  - self.variables_in
+                                  - {self.depvar.name})
         else:
-        	self.variables_out = set(allvars) - self.variables_in
+            self.variables_out = set(allvars) - self.variables_in
         self.variables = DataFrame(allvars, columns=['Variable Name'])

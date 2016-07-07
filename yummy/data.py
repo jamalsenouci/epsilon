@@ -34,7 +34,8 @@ class Data(pd.DataFrame):
 
     """
 
-    def __init__(self, data=None, index=None, columns=None, dtype=None, copy=False):
+    def __init__(self, data=None, index=None, columns=None, dtype=None,
+                 copy=False):
         super(Data, self).__init__(data, index, columns, dtype, copy)
         columns = [x.lower() for x in self.columns]
         columns = [x.strip(" ") for x in columns]
@@ -103,17 +104,18 @@ class Data(pd.DataFrame):
             lagged.iloc[:lag] = val
         else:
             lagged.iloc[lag:] = val
-        lagged = self._df_rename(lagged,"_lag",lag)
+        lagged = self._df_rename(lagged, "_lag", lag)
         result = pd.concat([self, lagged], axis=1)
         if inplace:
             self._update_inplace(result)
         else:
             return result
 
-    def atan(self, var, alphas,inplace=True):
+    def atan(self, var, alphas, inplace=True):
         """
-        Create a new variable that is an atan transformation of a specified variable.
-        Used to model diminishing returns, creates a concave transformation
+        Create a new variable that is an atan transformation of a specified
+        variable. Used to model diminishing returns, creates a concave
+        transformation
 
         Also works on multiple variables.
         """
@@ -124,7 +126,7 @@ class Data(pd.DataFrame):
         total = []
         for alpha in alphas:
             atan = (np.arctan(std/alpha))/(np.pi/2)
-            atan = self._df_rename(atan,"_atan",alpha)
+            atan = self._df_rename(atan, "_atan", alpha)
             total.append(atan)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
@@ -135,8 +137,9 @@ class Data(pd.DataFrame):
 
     def atansq(self, var, alphas, inplace=True):
         """
-        Create a new variable that is a squared atan transformation of a specified variable.
-        Used to model either diminishing and increasing returns, creates an s-shaped transformation
+        Create a new variable that is a squared atan transformation of a
+        specified variable. Used to model either diminishing and increasing
+        returns, creates an s-shaped transformation
 
         Also works on multiple variables.
         """
@@ -156,7 +159,7 @@ class Data(pd.DataFrame):
         else:
             return result
 
-    def adstock(self,var, adstocks, inplace=True):
+    def adstock(self, var, adstocks, inplace=True):
         """
         Create adstock(s) of a variable(s)
         Used to model advertising carryover into the next period.
@@ -164,7 +167,9 @@ class Data(pd.DataFrame):
 
         Example
         -------
-            ym.data.adstock(["Mother's Day Media Spend","Suncare Media Spend"], adstocks=[0.9,0.8])``
+            ym.data.adstock(["Mother's Day Media Spend",
+                             "Suncare Media Spend"],
+                             adstocks=[0.9,0.8])``
 
         Attributes
         ----------
@@ -194,11 +199,11 @@ class Data(pd.DataFrame):
         total = []
         for dec in decays:
             applied = subset.apply(lambda x: _decay(x, dec))
-            applied = self._df_rename(applied,"_adstock",dec)
+            applied = self._df_rename(applied, "_adstock", dec)
             total.append(applied)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if inplace:
             self._update_inplace(result)
         else:
@@ -213,7 +218,8 @@ class Data(pd.DataFrame):
 
         Example
         -------
-            ym.data.decay(["Mother's Day Media Spend","Suncare Media Spend"], [0.9,0.8])``
+            ym.data.decay(["Mother's Day Media Spend","Suncare Media Spend"],
+                          [0.9,0.8])``
 
         Attributes
         ----------
@@ -241,11 +247,11 @@ class Data(pd.DataFrame):
         total = []
         for dec in decays:
             applied = subset.apply(lambda x: _decay(x, dec))
-            applied = self._df_rename(applied,"_dec",dec)
+            applied = self._df_rename(applied, "_dec", dec)
             total.append(applied)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         if inplace:
             self._update_inplace(result)
         else:
@@ -253,8 +259,9 @@ class Data(pd.DataFrame):
 
     def mult(self, var, newname=None, inplace=True):
         """
-        Create a new variable that is a multiplicative combination of two variables.
-        Used to model interaction between two variables. e.g. Promotion and Media
+        Create a new variable that is a multiplicative combination of two
+        variables. Used to model interaction between two variables.
+        e.g. Promotion and Media
 
         Also works on multiple variables.
         decays a variable
@@ -281,7 +288,7 @@ class Data(pd.DataFrame):
 
     def view(self):
         """An improved view method for the data"""
-        #qgrid not suitable shrinks the columns
+        # qgrid not suitable shrinks the columns
         from yummy.display import grid_display
         return grid_display(self)
 

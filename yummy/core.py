@@ -1,5 +1,5 @@
 class Yummy(object):
-    """ Yummy class wraps up data, modelling and plotting functionality
+    """ Yummy class wraps up data, modelling and plotting functionality.
 
     Parameters
     ----------
@@ -28,16 +28,15 @@ class Yummy(object):
     """
 
     def __init__(self, data):
-        from yummy.utils import has_no_variation
         from yummy.model import Model
+        from yummy.utils import has_variation
         data = data[has_variation(data)]
         self.model = Model(data)
         self.data = self.model.data
 
-
     def reset(self):
         """
-        function to reset data back to original dataset
+        Function to reset data back to original dataset.
 
         useful when you overwrite variable, doesn't require network access
 
@@ -46,7 +45,8 @@ class Yummy(object):
         self.model = Model(self.model.rawdata)
         self.data = self.model.rawdata
 
+
 def help():
-    """function forwards user to documentation"""
+    """function forwards user to documentation."""
     import webbrowser
     webbrowser.open_new_tab('http://localhost:6757')
