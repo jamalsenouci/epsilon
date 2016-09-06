@@ -1,24 +1,24 @@
-from yummy.core import Yummy
+from epsilon.core import epsilon
 
 
 def read_csv(filepath):
-    """reads from csv to create yummy object"""
+    """reads from csv to create epsilon object"""
     from pandas import read_csv
     df = read_csv(filepath, index_col=0)
-    return Yummy(df)
+    return epsilon(df)
 
 
 def read_excel(filepath, sheetname):
-    """reads from excel to create yummy object"""
+    """reads from excel to create epsilon object"""
     from pandas import read_excel
     df = pd.read_excel(filepath, sheetname, args)
-    return Yummy(df)
+    return epsilon(df)
 
 
 def read_folder(folderpath):
     """
     loops through excel files in folder and concatenates output sheets to
-    produce a yummy object
+    produce a epsilon object
 
     sheets must be in specific format
     """
@@ -49,4 +49,4 @@ def read_folder(folderpath):
         df = pd.concat(data, axis=1)
         df.to_csv(folderpath + '/AllData.csv')
 
-        return Yummy(df)
+        return epsilon(df)

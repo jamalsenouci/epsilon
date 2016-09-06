@@ -1,14 +1,14 @@
 class Model(object):
-    """ The modelling component of the yummy package keeps track of the
+    """ The modelling component of the epsilon package keeps track of the
     endogenous and exogenous variables that are entered. fits the model and
     captures the stats
 
     """
     def __init__(self, data):
-        from yummy.data import Data
+        from epsilon.data import Data
         from pandas import DataFrame
         import numpy as np
-        from yummy.plotting import ModelPlots
+        from epsilon.plotting import ModelPlots
 
         self.data = Data(data)
         self.rawdata = data
@@ -87,7 +87,7 @@ class Model(object):
                 the name of the dependent variable
 
         """
-        from yummy.utils import has_variation
+        from epsilon.utils import has_variation
         if name in self.variables_in:
             self.variables_in.remove(name)
             print('Dependent Variable removed from variables in to prevent the \
@@ -200,7 +200,7 @@ class Model(object):
         method : string, default ols
                 estimation method to use
         """
-        from yummy.display import grid_display
+        from epsilon.display import grid_display
         from pandas import DataFrame
 
         if subset == "all":

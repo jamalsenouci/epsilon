@@ -1,13 +1,13 @@
 Overview
 =================================
 
-Yummy is a package to simplify Market Mix Modelling in Python.
-Yummy wraps up three main components data analysis, data modelling and data visualisation.
+epsilon is a package to simplify Market Mix Modelling in Python.
+epsilon wraps up three main components data analysis, data modelling and data visualisation.
 It is intended for use in the Jupyter notebook
 
 .. code-block:: python
-   >>> import yummy as ym
-   >>> yo = ym.read_csv('https://raw.githubusercontent.com/kept-io/r-datasets/master/datasets/quantreg/engel.csv')
+   >>> import epsilon as eps
+   >>> mo = ym.read_csv('https://raw.githubusercontent.com/kept-io/r-datasets/master/datasets/quantreg/engel.csv')
    >>> yo.data.corr()
    >>> yo.model.dep = 'income'
    >>> yo.model.add = 'foodexp'

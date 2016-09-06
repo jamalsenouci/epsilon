@@ -16,6 +16,6 @@ If you are already an Anaconda user, you can simply run the command
 
 .. code-block:: sh
 
-   conda install -c jamalsenouci yummy
+   conda install -c jamalsenouci epsilon
 
 Alternatively, it is possible to install from PyPI using pip:

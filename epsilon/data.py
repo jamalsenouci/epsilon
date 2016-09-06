@@ -30,7 +30,7 @@ class Data(pd.DataFrame):
 
     See also
     --------
-    yummy.load
+    epsilon.load
 
     """
 
@@ -282,19 +282,19 @@ class Data(pd.DataFrame):
             return result
 
     def to_frame(self):
-        """convert yummy Data object to pandas DataFrame"""
+        """convert epsilon Data object to pandas DataFrame"""
         from pandas import DataFrame
         return DataFrame(self)
 
     def view(self):
         """An improved view method for the data"""
         # qgrid not suitable shrinks the columns
-        from yummy.display import grid_display
+        from epsilon.display import grid_display
         return grid_display(self)
 
     def line(self, var):
         """Convenience method to chart variables together"""
-        import yummy.plotting as plt
+        import epsilon.plotting as plt
         subset = self[var]
 
         if self._check_duplicates_names(subset) != []:

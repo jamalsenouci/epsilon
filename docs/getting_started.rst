@@ -1,2 +1,2 @@
-Getting Started with Yummy
+Getting Started with epsilon
 =================================

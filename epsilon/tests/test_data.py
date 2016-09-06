@@ -1,6 +1,6 @@
 from nose import SkipTest
 from nose.tools import assert_true
-from yummy import Data
+from epsilon import Data
 import pandas as pd
 
 class TestData(object):

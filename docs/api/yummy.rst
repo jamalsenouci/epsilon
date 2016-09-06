@@ -1,53 +1,53 @@
-yummy package
+epsilon package
 =============
 
 Submodules
 ----------
 
-yummy.core module
+epsilon.core module
 -----------------
 
-.. automodule:: yummy.core
+.. automodule:: epsilon.core
     :members:
     :undoc-members:
     :show-inheritance:
 
-yummy.data module
+epsilon.data module
 -----------------
 
-.. automodule:: yummy.data
+.. automodule:: epsilon.data
     :members:
     :undoc-members:
     :show-inheritance:
 
-yummy.display module
+epsilon.display module
 --------------------
 
-.. automodule:: yummy.display
+.. automodule:: epsilon.display
     :members:
     :undoc-members:
     :show-inheritance:
 
-yummy.model module
+epsilon.model module
 ------------------
 
-.. automodule:: yummy.model
+.. automodule:: epsilon.model
     :members:
     :undoc-members:
     :show-inheritance:
 
-yummy.parser module
+epsilon.parser module
 -------------------
 
-.. automodule:: yummy.parser
+.. automodule:: epsilon.parser
     :members:
     :undoc-members:
     :show-inheritance:
 
-yummy.plotting module
+epsilon.plotting module
 ---------------------
 
-.. automodule:: yummy.plotting
+.. automodule:: epsilon.plotting
     :members:
     :undoc-members:
     :show-inheritance:
@@ -56,7 +56,7 @@ yummy.plotting module
 Module contents
 ---------------
 
-.. automodule:: yummy
+.. automodule:: epsilon
     :members:
     :undoc-members:
     :show-inheritance:

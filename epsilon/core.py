@@ -1,5 +1,5 @@
-class Yummy(object):
-    """ Yummy class wraps up data, modelling and plotting functionality.
+class epsilon(object):
+    """ epsilon class wraps up data, modelling and plotting functionality.
 
     Parameters
     ----------
@@ -11,7 +11,7 @@ class Yummy(object):
     >>> import numpy as np
     >>> df = DataFrame({'a': [True, False] * 3,
     ...                 'b': [1.0, 2.0] * 3})
-    >>> yo = Yummy(df)
+    >>> mo = epsilon(df)
     >>> yo.data
            a  b
     0   True  1
@@ -24,12 +24,12 @@ class Yummy(object):
 
     See also
     --------
-    yummy.load
+    epsilon.load
     """
 
     def __init__(self, data):
-        from yummy.model import Model
-        from yummy.utils import has_variation
+        from epsilon.model import Model
+        from epsilon.utils import has_variation
         data = data[has_variation(data)]
         self.model = Model(data)
         self.data = self.model.data
@@ -41,7 +41,7 @@ class Yummy(object):
         useful when you overwrite variable, doesn't require network access
 
         """
-        from yummy.model import Model
+        from epsilon.model import Model
         self.model = Model(self.model.rawdata)
         self.data = self.model.rawdata
 

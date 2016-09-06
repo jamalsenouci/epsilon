@@ -1,7 +1,7 @@
-yummy
+epsilon
 =====
 
 .. toctree::
    :maxdepth: 4
 
-   yummy
+   epsilon

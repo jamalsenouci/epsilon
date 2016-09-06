@@ -6,7 +6,7 @@ if sys.argv[-1] == 'setup.py':
     print()
 
 if sys.version_info[:2] < (2, 7):
-    print("Yummy requires Python 2.7 or later (%d.%d detected)." %
+    print("epsilon requires Python 2.7 or later (%d.%d detected)." %
           sys.version_info[:2])
     sys.exit(-1)
 
@@ -15,12 +15,12 @@ install_requires=[
     'pandas',
     'bokeh'
 ]
-packages = ["yummy"]
+packages = ["epsilon"]
 
 if __name__ == "__main__":
 
     setup(
-        name             = "yummy",
+        name             = "epsilon",
         version          = "0.0.1",
         maintainer       = "jamal senouci",
         maintainer_email = "jamal.senouci@outlook.co.uk",
@@ -31,8 +31,8 @@ if __name__ == "__main__":
         long_description = "Python package for marketing mix modelling",
         license          = 'BSD',
         platforms        = ['Windows'],
-        url              = 'http://yummy.github.io/',
-        download_url     = 'https://github.com/jamalsenouci/yummy/',
+        url              = 'http://epsilon.github.io/',
+        download_url     = 'https://github.com/jamalsenouci/epsilon/',
         classifiers      = "",
         install_requires = install_requires,
         packages         = packages,
