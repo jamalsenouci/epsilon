@@ -1,4 +1,4 @@
-class epsilon(object):
+class EO(object):
     """ epsilon class wraps up data, modelling and plotting functionality.
 
     Parameters
@@ -11,7 +11,7 @@ class epsilon(object):
     >>> import numpy as np
     >>> df = DataFrame({'a': [True, False] * 3,
     ...                 'b': [1.0, 2.0] * 3})
-    >>> mo = epsilon(df)
+    >>> mo = EO(df)
     >>> yo.data
            a  b
     0   True  1
