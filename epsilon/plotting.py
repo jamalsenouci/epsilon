@@ -1,4 +1,4 @@
-import bokeh as bk
+import bokeh.plotting as bk
 _colors = ['#1f77b4',
            '#ff7f0e',
            '#2ca02c',
@@ -28,7 +28,7 @@ class ModelPlots(object):
         from pandas import Series
 
         obs = self.model.obs()
-        actual = self.model.depvar[self.model.sample == 1]
+        actual = self.model.depvar[self.model.sample[0]]
         predict = self.model.fitdetail.predict()
         model = Series(predict, index=obs, name='Model')
 
@@ -40,14 +40,14 @@ class ModelPlots(object):
         that make up the dependent variable"""
         from pandas import DataFrame
         obs = self.model.obs()
-        actual = self.model.depvar[self.model.sample == 1]
+        actual = self.model.depvar[self.model.sample[0] == 1]
         exog = self.model.fitdetail.model.exog
         coeffs = self.model.fitdetail.params.values
         contribs = (exog*coeffs)
 
         contribs = DataFrame(contribs, index=obs,
                              columns=self.model.fitdetail.params.keys())
-        stackedBarAndLine2(actual, contribs)
+        stackedBarAndLine(actual, contribs)
 
     def res(self, percent=True):
         """
@@ -59,7 +59,6 @@ class ModelPlots(object):
                 display in percentage terms
         """
 
-        obs = self.model.obs()
         resid = self.model.fitdetail.resid
         resid.name = "Residuals"
         if percent is True:
@@ -80,7 +79,6 @@ class ModelPlots(object):
                 only plot observations within the model sample period
 
         """
-        obs = self.obs()
         self.data[self.sample == 1]
         if dep is True:
             df = self.data[subset]
@@ -167,9 +165,10 @@ def line(df, namelist=None):
     bk.show(plot)
 
 
+"""
 def stackedBarAndLine(line, stackedbar, namelist=None):
-    """TODO: Datetime index
-              Use ColumnDataSource to allow HoverTool to pick var name"""
+    # TODO: Datetime index
+    # TODO: use ColumnDataSource to allow HoverTool to pick var name
     import numpy as np
     from pandas.tseries.index import DatetimeIndex
     from bokeh.models import HoverTool, ColumnDataSource
@@ -209,15 +208,16 @@ def stackedBarAndLine(line, stackedbar, namelist=None):
     plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000',
               legend=line.name)
     return bk.show(plot)
+"""
 
 
-def stackedBarAndLine2(line, stackedbar, namelist=None):
+def stackedBarAndLine(line, stackedbar, namelist=None):
     """TODO: Datetime index"""
     import numpy as np
     from pandas.tseries.index import DatetimeIndex
     from bokeh.models import HoverTool, ColumnDataSource
 
-    obs = line.index
+    obs = stackedbar.index
     if isinstance(obs, DatetimeIndex):
         obs = obs.map(lambda x: x.strftime('%d-%b-%y'))
     obs = obs.tolist()
