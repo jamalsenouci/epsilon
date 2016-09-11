@@ -22,8 +22,8 @@ class Model(object):
                        [True] * len(self.data.columns))
 
     def obs(self):
-        keep_rows = sample[0]
-        obs = keep_rows[keep_rows is True].index
+        keep_rows = self.sample[0]
+        obs = self.data.index[keep_rows]
         return obs
 
     def add(self, variables):
@@ -84,10 +84,11 @@ class Model(object):
         Parameters
         ----------
         name : string
-                the name of the dependent variable
+                the column name of the dependent variable in the data
 
         """
         from epsilon.utils import has_variation
+        from pandas import notnull
         if name in self.variables_in:
             self.variables_in.remove(name)
             print('Dependent Variable removed from variables in to prevent the \
@@ -97,11 +98,11 @@ class Model(object):
             depvar = self.data[name]
             self.depvar = depvar
             # create sample based on dep var
-            keep_columns = pd.notnull(self.data[name])
-            keep_rows = has_variation(self.data)
+            keep_rows = notnull(self.data[name])
+            keep_columns = has_variation(self.data)
             self.sample = (keep_rows, keep_columns)
         else:
-            print(name + " not in data")
+            print(name + " is not a column name in the data")
 
     def _get_exog(self):
         """function to prepare dataset for modelling"""
@@ -125,7 +126,7 @@ class Model(object):
         import statsmodels.api as sm
 
         x = self._get_exog()
-        Y = self.depvar.loc[self.sample]
+        Y = self.depvar.loc[self.sample[0]]
         if constant is True:
             x = sm.add_constant(x)
         modelspec = sm.OLS(Y, x)
