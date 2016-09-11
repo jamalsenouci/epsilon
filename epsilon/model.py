@@ -189,7 +189,7 @@ class Model(object):
         information"""
         pass
 
-    def ttest(self, subset="all", method='ols'):
+    def ttest(self, subset="all", method='ols', display="qgrid"):
         """
         view statistics for variables outside of the model if they were
         entered into the model
@@ -226,7 +226,11 @@ class Model(object):
         params = DataFrame(params)
         params = params[params["coefficient"] != 0]
         params = params.set_index("Variable Name")
-        return grid_display(params)
+        if display == "qgrid":
+            return grid_display(params)
+        if display == "frame":
+            return params
+
 
     def forecast(self, sample):
         pass
