@@ -1,18 +1,22 @@
-from epsilon.core import epsilon
+from epsilon.core import EO
 
 
 def read_csv(filepath):
     """reads from csv to create epsilon object"""
     from pandas import read_csv
     df = read_csv(filepath, index_col=0)
-    return epsilon(df)
+    return EO(df)
+
+def read_df(df):
+    """reads from DataFrame to create epsilon object"""
+    return EO(df)
 
 
 def read_excel(filepath, sheetname):
     """reads from excel to create epsilon object"""
     from pandas import read_excel
     df = pd.read_excel(filepath, sheetname, args)
-    return epsilon(df)
+    return EO(df)
 
 
 def read_folder(folderpath):
@@ -49,4 +53,4 @@ def read_folder(folderpath):
         df = pd.concat(data, axis=1)
         df.to_csv(folderpath + '/AllData.csv')
 
-        return epsilon(df)
+        return EO(df)
