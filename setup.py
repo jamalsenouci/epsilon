@@ -10,33 +10,36 @@ if sys.version_info[:2] < (2, 7):
           sys.version_info[:2])
     sys.exit(-1)
 
-install_requires=[
+install_requires = [
     'numpy',
     'pandas',
-    'bokeh'
+
+    'bokeh',
+    'ipywidgets',
+    'qgrid'
 ]
 packages = ["epsilon"]
 
 if __name__ == "__main__":
 
     setup(
-        name             = "epsilon",
-        version          = "0.0.1",
-        maintainer       = "jamal senouci",
-        maintainer_email = "jamal.senouci@outlook.co.uk",
-        author           = 'jamal senouci',
-        author_email     = "jamal.senouci@outlook.co.uk",
-        description      = "Python package for marketing mix modelling",
-        keywords         = ['Marketing', 'Econometrics', 'Modelling', 'Statistical'],
-        long_description = "Python package for marketing mix modelling",
-        license          = 'BSD',
-        platforms        = ['Windows'],
-        url              = 'http://epsilon.github.io/',
-        download_url     = 'https://github.com/jamalsenouci/epsilon/',
-        classifiers      = "",
-        install_requires = install_requires,
-        packages         = packages,
-        test_suite       = 'nose.collector',
-        tests_require    = ['nose>=0.10.1'],
-        zip_safe         = False
+        name="epsilon",
+        version="0.0.1",
+        maintainer="jamal senouci",
+        maintainer_email="jamal.senouci@outlook.co.uk",
+        author='jamal senouci',
+        author_email="jamal.senouci@outlook.co.uk",
+        description="Python package for marketing mix modelling",
+        keywords=['Marketing', 'Econometrics', 'Modelling', 'Statistical'],
+        long_description="Python package for marketing mix modelling",
+        license='BSD',
+        platforms=['Windows'],
+        url='http://epsilon.github.io/',
+        download_url='https://github.com/jamalsenouci/epsilon/',
+        classifiers="",
+        install_requires=install_requires,
+        packages=packages,
+        test_suite='nose.collector',
+        tests_require=['nose>=0.10.1'],
+        zip_safe=False
     )

@@ -19,6 +19,7 @@ _colors = ['#1f77b4',
 
 
 class ModelPlots(object):
+
     def __init__(self, model):
         self.model = model
 
@@ -62,7 +63,8 @@ class ModelPlots(object):
         resid = self.model.fitdetail.resid
         resid.name = "Residuals"
         if percent is True:
-            resid = self.model.fitdetail.resid / self.model.fitdetail.model.endog
+            resid = self.model.fitdetail.resid / \
+                self.model.fitdetail.model.endog
         line(resid)
 
     def plot(self, subset, dep=False, sample=True):
@@ -130,6 +132,7 @@ def line(df, namelist=None):
         else:
             df.columns = namelist
 
+    # http://stackoverflow.com/questions/31496628/in-bokeh-how-do-i-add-tooltips-to-a-timeseries-chart-hover-tool
     hover = HoverTool(
         tooltips=[
             ("obs", "$index"),
@@ -151,17 +154,17 @@ def line(df, namelist=None):
         source = ColumnDataSource({'x': obs, 'y': df.values,
                                    'date': [x.strftime('%d %b %Y') for x in obs],
                                    'variable': [df.name for x in obs]})
+        plot.line('x', 'y', source=source, color='darkgrey', legend=df.name)
         plot.circle('x', 'y', source=source, size=4, color='darkgrey',
                     alpha=0.1, legend=df.name)
-        plot.line(obs, df.values, color='navy', legend=df.name)
     else:
         for i, col in enumerate(df.columns):
             source = ColumnDataSource({'x': obs, 'y': df[col].values,
                                        'date': df.index.format(),
                                        'variable': [df[col].name for x in obs]})
+            plot.line('x', 'y', source=source, color=_colors[i], legend=col)
             plot.circle('x', 'y', source=source, size=4, color=_colors[i],
                         alpha=0.2, legend=col)
-            plot.line(obs, df[col].values, color=_colors[i], legend=col)
     bk.show(plot)
 
 
@@ -214,8 +217,8 @@ def stackedBarAndLine(line, stackedbar, namelist=None):
 def stackedBarAndLine(line, stackedbar, namelist=None):
     """TODO: Datetime index"""
     import numpy as np
-    from pandas.tseries.index import DatetimeIndex
-    from bokeh.models import HoverTool, ColumnDataSource
+    from pandas import DatetimeIndex
+    from bokeh.models import HoverTool, ColumnDataSource, Legend
 
     obs = stackedbar.index
     if isinstance(obs, DatetimeIndex):
@@ -240,6 +243,7 @@ def stackedBarAndLine(line, stackedbar, namelist=None):
     # plot.add_layout(xaxis, 'below')
     pos_sum = 0
     neg_sum = 0
+    items = []
     for i, contrib in enumerate(stackedbar):
         name = contrib
         # TODO: check this is equivalent to contrib then remove
@@ -247,16 +251,19 @@ def stackedBarAndLine(line, stackedbar, namelist=None):
         if contrib.max() > 0:
             source = ColumnDataSource({'x': obs, 'y': pos_sum+contrib/2,
                                        'variable': [str(name) for x in obs]})
-            plot.rect(x='x', y='y', source=source, width=1, height=contrib,
-                      color=_colors[i], alpha=0.6, legend=name)
+            r1 = plot.rect(x='x', y='y', source=source, width=1, height=contrib,
+                      color=_colors[i], alpha=0.6)
             pos_sum += contrib
         else:
             source = ColumnDataSource({'x': obs, 'y': neg_sum+contrib/2,
                                        'variable': [str(name) for x in obs]})
-            plot.rect(x='x', y='y', source=source, width=1, height=contrib,
-                      color=_colors[i], alpha=0.6, legend=name)
+            r1 = plot.rect(x='x', y='y', source=source, width=1, height=contrib,
+                      color=_colors[i], alpha=0.6)
             neg_sum += contrib
             line -= contrib
-    plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000',
-              legend='Sales')
+        items.append((name, [r1]))
+    l1 = plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000')
+    items.append(("Sales", [l1]))
+    legend = Legend(legends=items, location=(0, -30))
+    plot.add_layout(legend, 'below')
     return bk.show(plot)

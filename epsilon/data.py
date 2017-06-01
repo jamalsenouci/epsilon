@@ -37,9 +37,9 @@ class Data(pd.DataFrame):
     def __init__(self, data=None, index=None, columns=None, dtype=None,
                  copy=False):
         super(Data, self).__init__(data, index, columns, dtype, copy)
-        columns = [x.lower() for x in self.columns]
-        columns = [x.strip(" ") for x in columns]
-        columns = [x.replace(" ", "_") for x in columns]
+        columns = self.columns.str.lower()
+        columns = columns.str.strip(" ")
+        columns = columns.str.replace(" ", "_")
         self.columns = columns
         self.index = self.index.to_datetime()
 
@@ -296,6 +296,7 @@ class Data(pd.DataFrame):
         """Convenience method to chart variables together"""
         import epsilon.plotting as plt
         subset = self[var]
+        subset = pd.DataFrame(subset)
 
         if self._check_duplicates_names(subset) != []:
             raise NameError('variables with duplicate names selected')
