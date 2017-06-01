@@ -264,6 +264,6 @@ def stackedBarAndLine(line, stackedbar, namelist=None):
         items.append((name, [r1]))
     l1 = plot.line(x=obs, y=line, line_dash=[4, 4], color='#000000')
     items.append(("Sales", [l1]))
-    legend = Legend(legends=items, location=(0, -30))
-    plot.add_layout(legend, 'below')
+    legend = Legend(legends=items, location=(30, 0))
+    plot.add_layout(legend, 'right')
     return bk.show(plot)
