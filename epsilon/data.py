@@ -37,19 +37,29 @@ class Data(pd.DataFrame):
     def __init__(self, data=None, index=None, columns=None, dtype=None,
                  copy=False):
         super(Data, self).__init__(data, index, columns, dtype, copy)
+        from epsilon._utils import has_variation, convert_categoricals
+        from warnings import warn
+        from textwrap import dedent
+        convert_categoricals(data)
+        model_data = has_variation(data)
+        num_omitted_vars = len(data.columns) - len(model_data.columns)
+        omitted_vars = set(data.columns).difference(set(model_data.columns))
+        if num_omitted_vars > 0:
+            warn(
+                dedent("""
+                    {x} variables have been removed as they have no
+                    variation across the dataset {vars}""").format(
+                    x=str(num_omitted_vars), vars=omitted_vars)
+            )
         columns = self.columns.str.lower()
         columns = columns.str.strip(" ")
         columns = columns.str.replace(" ", "_")
         self.columns = columns
         self.index = self.index.to_datetime()
 
-    def handle_nonnumeric(self):
-        """need to deal with import of non-numeric data"""
-        len(self.columns)
-
     def handle_duplicate(self):
         """to deal with import of duplicate data"""
-        len(self.columns)
+        raise NotImplementedError()
 
     def _check_duplicates_names(self, df):
         seen = set()
@@ -285,12 +295,6 @@ class Data(pd.DataFrame):
         """convert epsilon Data object to pandas DataFrame"""
         from pandas import DataFrame
         return DataFrame(self)
-
-    def view(self):
-        """An improved view method for the data"""
-        # qgrid not suitable shrinks the columns
-        from epsilon.display import grid_display
-        return grid_display(self)
 
     def line(self, var):
         """Convenience method to chart variables together"""

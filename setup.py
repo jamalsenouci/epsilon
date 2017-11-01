@@ -13,10 +13,9 @@ if sys.version_info[:2] < (2, 7):
 install_requires = [
     'numpy',
     'pandas',
-
-    'bokeh',
-    'ipywidgets',
-    'qgrid'
+    'pyarrow',
+    'pytest',
+    'bokeh'
 ]
 packages = ["epsilon"]
 
@@ -24,7 +23,7 @@ if __name__ == "__main__":
 
     setup(
         name="epsilon",
-        version="0.0.1",
+        version="0.1.0",
         maintainer="jamal senouci",
         maintainer_email="jamal.senouci@outlook.co.uk",
         author='jamal senouci',

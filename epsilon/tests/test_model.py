@@ -5,12 +5,7 @@ import numpy as np
 import pytest
 
 
-def __init__(self):
-    self.df = None
-    self.eo = None
-
-
-@pytest.fixture
+@pytest.fixture(scope='module')
 def df():
     ints = np.random.randint(1, 10, size=(3, 2))
     df = pd.DataFrame(ints,
@@ -20,7 +15,7 @@ def df():
     return df
 
 
-@pytest.fixture
+@pytest.fixture(scope='function')
 def eo():
     ints = np.random.randint(1, 10, size=(3, 2))
     df = pd.DataFrame(ints,
@@ -69,7 +64,6 @@ def test_obs_len(eo):
 
 # test that model observations are the right values
 def test_obs_vals(eo):
-    eo.model.dep('sales')
     assert_array_equal(eo.model.obs(),
                        pd.date_range(start="1999-01-01",
                                      end="1999-01-02"))

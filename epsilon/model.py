@@ -4,14 +4,19 @@ class Model(object):
     captures the stats
 
     """
+
     def __init__(self, data):
         from epsilon.data import Data
-        from pandas import DataFrame
-        import numpy as np
         from epsilon.plotting import ModelPlots
+        import pyarrow as pa
+        import pyarrow.parquet as pq
 
-        self.data = Data(data)
+        #need to write raw data to file
+        # table = pa.Table.from_pandas(data)
+        # pq.write_table(table, "./data/rawdata.parquet")
+
         self.rawdata = data
+        self.data = Data(data)
         self.variables_in = set()
         self.variables_out = None
         self.depvar = None
@@ -22,6 +27,9 @@ class Model(object):
                        [True] * len(self.data.columns))
 
     def obs(self):
+        """
+        returns number of observations (rows) in the data
+        """
         keep_rows = self.sample[0]
         obs = self.data.index[keep_rows]
         return obs
@@ -87,22 +95,39 @@ class Model(object):
                 the column name of the dependent variable in the data
 
         """
-        from epsilon.utils import has_variation
+        from epsilon._utils import has_variation
         from pandas import notnull
-        if name in self.variables_in:
-            self.variables_in.remove(name)
-            print('Dependent Variable removed from variables in to prevent the \
-            model from being suspiciously too good')
-        if name in self.variables_out:
-            self.variables_out.remove(name)
+        from textwrap import dedent
+
+        if self.depvar is None:
+            if name in self.variables_out:
+                self.variables_out.remove(name)
+                depvar = self.data[name]
+                self.depvar = depvar
+                # create sample based on dep var
+                keep_rows = notnull(self.data[name])
+                keep_columns = has_variation(self.data).columns
+                self.sample = (keep_rows, keep_columns)
+            else:
+                raise ValueError(
+                    "{} is not a column name in the data".format(name))
+        else:
+            print('Dependent Variable was previously {}'.format(self.depvar.name))
+            if name in self.variables_in:
+                self.variables_in.remove(name)
+                print('Dependent Variable removed from variables in to prevent the model from being suspiciously too good')
+            elif name in self.variables_out:
+                self.variables_out.remove(name)
+            elif name == self.depvar.name:
+                raise ValueError('{} has already been set as the dependent variable'.format(name))
+            else:
+                raise ValueError('{} is not a column name in the data,keeping the previous dependent variable'.format(name))
             depvar = self.data[name]
             self.depvar = depvar
             # create sample based on dep var
             keep_rows = notnull(self.data[name])
-            keep_columns = has_variation(self.data)
+            keep_columns = has_variation(self.data).columns
             self.sample = (keep_rows, keep_columns)
-        else:
-            print(name + " is not a column name in the data")
 
     def _get_exog(self):
         """function to prepare dataset for modelling"""
@@ -156,7 +181,7 @@ class Model(object):
         modelspec = sm.RLM(Y, x, **kwargs)
         return self._fit(modelspec)
 
-    def var(self, lag='auto'):
+    def _var(self, lag='auto'):
         """needs to generalise fit function"""
         import statsmodels.api as sm
 
@@ -179,20 +204,20 @@ class Model(object):
         self.fitdetail = fit
         return fit.summary()
 
-    def sample(self, period):
+    def _sample(self, period):
         """restrict the modelling period to a sample of the total dataset"""
         # set sample obs widget
-        pass
+        raise NotImplementedError()
 
-    def fix(self, variables, values):
+    def _fix(self, variables, values):
         """fix a variable coefficient to a specified number based on other
         information"""
-        pass
+        raise NotImplementedError()
 
-    def ttest(self, subset="all", method='ols', display="qgrid"):
+    def preview(self, subset="all"):
         """
         view statistics for variables outside of the model if they were
-        entered into the model
+        entered into the model. Currently only based on an ols regression
 
         Parameters
         ----------
@@ -201,7 +226,6 @@ class Model(object):
         method : string, default ols
                 estimation method to use
         """
-        from epsilon.display import grid_display
         from pandas import DataFrame
 
         if subset == "all":
@@ -225,23 +249,20 @@ class Model(object):
         self.ols()
         params = DataFrame(params)
         params = params[params["coefficient"] != 0]
+        params["abs(t-stat)"] = params["t-stat"].map(abs)
         params = params.set_index("Variable Name")
-        if display == "qgrid":
-            return grid_display(params)
-        if display == "frame":
-            return params
+        return params.sort_values("abs(t-stat)", ascending=False)
 
+    def _forecast(self, sample):
+        raise NotImplementedError()
 
-    def forecast(self, sample):
-        pass
-
-    def group(self):
+    def _group(self):
         """place variables_in into contribution groups"""
-        pass
+        raise NotImplementedError()
 
-    def export(self, path):
+    def _export(self, path):
         """export model to csv"""
-        pass
+        raise NotImplementedError()
 
     def _update_variables(self):
         """internal function that updates the variables_out with new variables

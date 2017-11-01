@@ -11,8 +11,8 @@ class EO(object):
     >>> import numpy as np
     >>> df = DataFrame({'a': [True, False] * 3,
     ...                 'b': [1.0, 2.0] * 3})
-    >>> mo = EO(df)
-    >>> yo.data
+    >>> eo = EO(df)
+    >>> eo.data
            a  b
     0   True  1
     1  False  2
@@ -29,8 +29,6 @@ class EO(object):
 
     def __init__(self, data):
         from epsilon.model import Model
-        from epsilon.utils import has_variation
-        data = data[has_variation(data)]
         self.model = Model(data)
         self.data = self.model.data
 
@@ -42,8 +40,11 @@ class EO(object):
 
         """
         from epsilon.model import Model
-        self.model = Model(self.model.rawdata)
-        self.data = self.model.rawdata
+        import pyarrow.parquet as pq
+        table = pq.read_table("data/rawdata.parquet")
+        rawdata = table.to_pandas()
+        self.model = Model(rawdata)
+        self.data = rawdata
 
 
 def help():

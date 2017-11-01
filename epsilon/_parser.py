@@ -1,35 +1,20 @@
-from epsilon.core import EO
-
-
-def read_csv(filepath):
-    """reads from csv to create epsilon object"""
-    from pandas import read_csv
-    df = read_csv(filepath, index_col=0)
-    return EO(df)
-
-
-def read_df(df):
+def read(df):
     """reads from DataFrame to create epsilon object"""
+    from epsilon.core import EO
     return EO(df)
-
-
-def read_excel(filepath, sheetname):
-    """reads from excel to create epsilon object"""
-    from pandas import read_excel
-    df = pd.read_excel(filepath, sheetname, args)
-    return EO(df)
-
 
 def read_folder(folderpath, sheetname='output', header=0, check_date_format=False, date_format="w-sat"):
     """
     loops through excel files in folder and concatenates output sheets to
     produce a epsilon object
-
-    sheets must be in specific format
     """
+    from epsilon.core import EO
     import os
     import pandas as pd
     import fnmatch
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
     date_formats = {
         "w-mon": 0,
         "w-tue": 1,
@@ -52,15 +37,14 @@ def read_folder(folderpath, sheetname='output', header=0, check_date_format=Fals
     for i, file in enumerate(matches):
         print("Processing file {0} of ".format(i + 1) +
               str(len(matches) + 1), end="\r")
-        try:
-            temp = pd.read_excel(file, sheetname=sheetname, header=header)
-            temp.name = file
-            temp = temp.set_index('date')
-            data.append(temp)
-            success.append(file)
+        temp = pd.read_excel(file,
+                             sheetname=sheetname,
+                             header=header,
+                             index_col=0)
+        temp.name = file
+        data.append(temp)
+        success.append(file)
 
-        except:
-            pass
 
     if check_date_format:
         for df in data:
@@ -75,6 +59,7 @@ def read_folder(folderpath, sheetname='output', header=0, check_date_format=Fals
                                  date_format + " for " + df.name)
     print("successfully loaded the following files " + str(success))
     df = pd.concat(data, axis=1)
-    df.to_csv(folderpath + '/AllData.csv')
+    table = pa.Table.from_pandas(df)
+    pq.write_table(table, folderpath + '/AllData.parquet')
 
     return EO(df)
