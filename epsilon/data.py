@@ -61,7 +61,8 @@ class Data(pd.DataFrame):
         """to deal with import of duplicate data"""
         raise NotImplementedError()
 
-    def _check_duplicates_names(self, df):
+    @staticmethod
+    def _check_duplicates_names(df):
         seen = set()
         dup = []
         for col in df.columns:
