@@ -124,7 +124,6 @@ def line(df, dep=None, namelist=None):
     plot.xgrid.grid_line_color = None
 
     obs = df.index.to_datetime()
-    # obs = np.array(df.index, dtype=np.datetime64)
     if isinstance(df, Series):
         source = ColumnDataSource({'x': obs, 'y': df.values,
                                    'date': [x.strftime('%d %b %Y') for x in obs],

@@ -214,7 +214,6 @@ class Data(pd.DataFrame):
             total.append(applied)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
-        # import pdb; pdb.set_trace()
         if inplace:
             self._update_inplace(result)
         else:
@@ -262,7 +261,6 @@ class Data(pd.DataFrame):
             total.append(applied)
         total = pd.concat(total, axis=1)
         result = pd.concat([self, total], axis=1)
-        # import pdb; pdb.set_trace()
         if inplace:
             self._update_inplace(result)
         else:
