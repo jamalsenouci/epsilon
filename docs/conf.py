@@ -15,7 +15,6 @@
 
 import sys
 import os
-import shlex
 
 # Environment variable to know if the docs are being built on rtd.
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
