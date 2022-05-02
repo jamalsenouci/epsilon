@@ -18,7 +18,7 @@ _colors = ['#1f77b4',
            '#ff9896']
 
 
-class ModelPlots(object):
+class ModelPlots:
 
     def __init__(self, model):
         self._model = model

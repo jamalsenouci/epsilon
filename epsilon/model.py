@@ -1,4 +1,4 @@
-class Model(object):
+class Model:
     """ The modelling component of the epsilon package keeps track of the
     endogenous and exogenous variables that are entered. fits the model and
     captures the stats
