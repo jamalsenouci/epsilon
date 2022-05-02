@@ -24,7 +24,8 @@ def combined():
 
 
 def test_avm_shape(combined):
-    assert (combined.shape == (2, 2))
+    if (combined.shape != (2, 2)):
+        raise AssertionError
 
 
 def test_avm_val(combined):
