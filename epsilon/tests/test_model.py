@@ -36,19 +36,22 @@ def test_dep_values(df):
 
 # test that depvar is equal to chosen column
 def test_dep_name(eo):
-    assert (eo.model.depvar.name == 'sales')
+    if (eo.model.depvar.name != 'sales'):
+        raise AssertionError
 
 
 # test that depvar has been removed from the model if already an exogenous var
 def test_dep_not_in(eo):
     eo.model.add('marketing_spend')
     eo.model.dep('marketing_spend')
-    assert ('marketing_spend' not in eo.model.variables_in)
+    if ('marketing_spend' in eo.model.variables_in):
+        raise AssertionError
 
 
 # test that depvar is not available as an exogenous variable
 def test_dep_not_out(eo):
-    assert ('sales' not in eo.model.variables_out)
+    if ('sales' in eo.model.variables_out):
+        raise AssertionError
 
 
 # test that sample is as expected
@@ -59,7 +62,8 @@ def test_dep_sample(eo):
 
 # test that model observations are the right length
 def test_obs_len(eo):
-    assert (len(eo.model.obs()) == 2)
+    if (len(eo.model.obs()) != 2):
+        raise AssertionError
 
 
 # test that model observations are the right values

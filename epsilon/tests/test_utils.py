@@ -14,11 +14,16 @@ def remove_file_structure():
 @pytest.mark.usefixtures('remove_file_structure')
 def test_create_project():
     os.chdir(os.pardir)
-    assert os.path.exists('./test_dir')
-    assert os.path.exists('./test_dir/config')
-    assert os.path.exists('./test_dir/processing')
-    assert os.path.exists('./test_dir/models')
+    if not os.path.exists('./test_dir'):
+        raise AssertionError
+    if not os.path.exists('./test_dir/config'):
+        raise AssertionError
+    if not os.path.exists('./test_dir/processing'):
+        raise AssertionError
+    if not os.path.exists('./test_dir/models'):
+        raise AssertionError
 
 @pytest.mark.usefixtures('remove_file_structure')
 def test_no_overwrite():
-    assert os.path.realpath(os.curdir).split("\\")[-1] == "test_dir"
+    if os.path.realpath(os.curdir).split("\\")[-1] != "test_dir":
+        raise AssertionError
