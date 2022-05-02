@@ -1,4 +1,4 @@
-class EO(object):
+class EO:
     """ epsilon class wraps up data, modelling and plotting functionality.
 
     Parameters
