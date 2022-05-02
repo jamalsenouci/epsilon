@@ -8,7 +8,6 @@ class Model(object):
     def __init__(self, data):
         from epsilon.data import Data
         from epsilon.plotting import ModelPlots
-        import pyarrow as pa
         import pyarrow.parquet as pq
 
         #need to write raw data to file
@@ -97,7 +96,6 @@ class Model(object):
         """
         from epsilon._utils import has_variation
         from pandas import notnull
-        from textwrap import dedent
 
         if self.depvar is None:
             if name in self.variables_out:
